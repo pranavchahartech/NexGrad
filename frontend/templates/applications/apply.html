@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Apply for {{ job.title }} — Nexgrad{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow-sm border-0 p-4" style="border-radius: var(--radius-md);">
+        <div class="mb-4 pb-3 border-bottom">
+          <div class="d-flex flex-wrap align-items-center gap-1 mb-2">
+            <span class="badge" style="background-color: var(--navy); color: #fff;">Application Submission</span>
+            <span class="badge" style="background-color: var(--teal); color: var(--navy);">{{ job.display_service_category }}</span>
+            <span class="badge" style="background-color: var(--slate); color: #fff;">{{ job.seniority_level }}</span>
+          </div>
+          <h3 class="fw-bold mt-2" style="color: var(--navy);">{{ job.clean_title }}</h3>
+          <div class="text-muted small">
+            <i class="bi bi-building me-1"></i><strong>{{ job.company.name }}</strong> &bull;
+            <i class="bi bi-geo-alt ms-2 me-1"></i>{{ job.location }} &bull;
+            <i class="bi bi-cash-stack ms-2 me-1 text-success"></i><span class="fw-semibold text-success">{{ job.display_salary }}</span>
+          </div>
+        </div>
+
+        <form method="post">
+          {% csrf_token %}
+          
+          <div class="mb-4 p-3 rounded" style="background-color: var(--cream-soft); border: 1px solid var(--border-subtle);">
+            <h6 class="fw-bold mb-2" style="color: var(--navy);"><i class="bi bi-person-check-fill me-2"></i>Candidate Profile Data to be Shared</h6>
+            <div class="row g-2 small text-muted">
+              <div class="col-sm-6"><strong>Name:</strong> {{ user.get_full_name|default:user.username }}</div>
+              <div class="col-sm-6"><strong>Email:</strong> {{ user.email }}</div>
+              <div class="col-sm-6"><strong>Degree & Branch:</strong> {{ profile.degree }} ({{ profile.get_branch_display }})</div>
+              <div class="col-sm-6"><strong>CGPA:</strong> {{ profile.cgpa }} / 10.0</div>
+              <div class="col-sm-6"><strong>GitHub:</strong> {{ profile.github_url|default:"Not Linked" }}</div>
+              <div class="col-sm-6"><strong>Verified Projects:</strong> {{ profile.projects.count }}</div>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Attached Resume</label>
+            {% with default_resume=profile.resumes.first %}
+              {% if default_resume %}
+                <div class="p-3 border rounded d-flex justify-content-between align-items-center">
+                  <div>
+                    <i class="bi bi-file-earmark-pdf-fill text-danger fs-5 me-2"></i>
+                    <strong>{{ default_resume.title }}</strong>
+                    <span class="badge bg-success ms-2">Default</span>
+                  </div>
+                  <small class="text-muted">Uploaded {{ default_resume.uploaded_at|date:"M d, Y" }}</small>
+                </div>
+              {% else %}
+                <div class="alert alert-warning small mb-0">
+                  <i class="bi bi-exclamation-triangle-fill me-2"></i>You have not uploaded a default resume. Your digital engineering portfolio will be shared as the primary credential.
+                </div>
+              {% endif %}
+            {% endwith %}
+          </div>
+
+          <div class="mb-4">
+            <label for="cover_letter" class="form-label fw-semibold">Candidate Cover Note / Contribution Statement (Optional)</label>
+            <textarea name="cover_letter" id="cover_letter" rows="4" class="form-control" placeholder="Briefly highlight your relevant technical projects, system design interests, or architecture experience for this engineering role..."></textarea>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+            <a href="{% url 'jobs:detail' job.id %}" class="btn btn-nex-outline">Cancel</a>
+            <button type="submit" class="btn btn-nex-primary">
+              <i class="bi bi-send-fill me-1"></i> Submit Application
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

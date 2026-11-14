@@ -1,0 +1,9 @@
+---
+# Global common Hiera data
+nexgrad::platform::name: "NexGrad"
+nexgrad::python_version: "3.12"
+nexgrad::app_user: "nexgrad"
+nexgrad::app_root: "/opt/nexgrad"
+nexgrad::log_root: "/var/log/nexgrad"
+nexgrad::monitoring::server_ip: "10.0.1.50"
+

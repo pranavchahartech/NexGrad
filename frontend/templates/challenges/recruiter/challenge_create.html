@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Private Technical Challenge — Recruiter Workspace{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+
+      <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+        <div>
+          <div class="badge mb-2" style="background-color: var(--sage); color: var(--navy); font-weight: 700;">
+            <i class="bi bi-shield-lock-fill me-1"></i> Private Assessment Creator
+          </div>
+          <h2 class="fw-bold mb-1" style="color: var(--navy);">Create Private Technical Challenge</h2>
+          <p class="text-muted small mb-0">This challenge will remain strictly private and accessible only to candidates you personally assign.</p>
+        </div>
+        <a href="{% url 'challenges:recruiter_challenge_list' %}" class="btn btn-nex-outline">
+          <i class="bi bi-arrow-left me-1"></i> Back to Challenges
+        </a>
+      </div>
+
+      <div class="card shadow-sm border-0 p-4" style="border-radius: var(--radius-md);">
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          {% if form.errors %}
+            <div class="alert alert-danger mb-4">
+              <strong class="d-block mb-1"><i class="bi bi-exclamation-triangle-fill me-2"></i>Please correct the following errors:</strong>
+              <ul class="mb-0 small ps-3">
+                {% for field, errors in form.errors.items %}
+                  {% for error in errors %}
+                    <li><strong>{{ field|title }}:</strong> {{ error }}</li>
+                  {% endfor %}
+                {% endfor %}
+              </ul>
+            </div>
+          {% endif %}
+
+          <!-- Section 1: Basic Information -->
+          <h5 class="fw-bold mb-3 pb-2 border-bottom" style="color: var(--navy);">
+            <i class="bi bi-info-circle-fill me-2"></i>1. Challenge Specifications
+          </h5>
+          
+          <div class="row g-3 mb-4">
+            <div class="col-md-8">
+              <label class="form-label fw-bold small">Challenge Title <span class="text-danger">*</span></label>
+              {{ form.title }}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold small">Associated Vacancy</label>
+              {{ form.job }}
+              <div class="form-text small">Select job to easily shortlist applicants.</div>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label fw-bold small">Challenge Type <span class="text-danger">*</span></label>
+              {{ form.challenge_type }}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold small">Difficulty Level <span class="text-danger">*</span></label>
+              {{ form.difficulty }}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold small">Maximum Marks <span class="text-danger">*</span></label>
+              {{ form.maximum_marks }}
+            </div>
+          </div>
+
+          <!-- Section 2: Problem & Requirements -->
+          <h5 class="fw-bold mb-3 pb-2 border-bottom" style="color: var(--navy);">
+            <i class="bi bi-code-square me-2"></i>2. Problem Statement &amp; Requirements
+          </h5>
+
+          <div class="row g-3 mb-4">
+            <div class="col-12">
+              <label class="form-label fw-bold small">Brief Description / Business Context <span class="text-danger">*</span></label>
+              {{ form.description }}
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-bold small">Detailed Problem Statement <span class="text-danger">*</span></label>
+              {{ form.problem_statement }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold small">Technical Requirements / Stack Constraints</label>
+              {{ form.technical_requirements }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold small">Required Skills / Tags</label>
+              {{ form.required_skills }}
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-bold small">Input / Output Specifications &amp; Test Cases</label>
+              {{ form.input_output_specs }}
+            </div>
+          </div>
+
+          <!-- Section 3: Submission & Deadline -->
+          <h5 class="fw-bold mb-3 pb-2 border-bottom" style="color: var(--navy);">
+            <i class="bi bi-clock-history me-2"></i>3. Submission Deadlines &amp; Guidelines
+          </h5>
+
+          <div class="row g-3 mb-4">
+            <div class="col-md-4">
+              <label class="form-label fw-bold small">Start Date &amp; Time <span class="text-danger">*</span></label>
+              {{ form.start_at }}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold small">Submission Deadline <span class="text-danger">*</span></label>
+              {{ form.deadline }}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold small">Time Limit (Minutes)</label>
+              {{ form.time_limit_minutes }}
+              <div class="form-text small">Leave blank if untimed.</div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-bold small">Allowed Submission Formats</label>
+              {{ form.allowed_submission_formats }}
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-bold small">Max File Size (MB)</label>
+              {{ form.max_file_size_mb }}
+            </div>
+            <div class="col-md-3 d-flex align-items-center pt-4">
+              <div class="form-check">
+                {{ form.allow_resubmission }}
+                <label class="form-check-label fw-bold small" for="{{ form.allow_resubmission.id_for_label }}">
+                  Allow Re-submissions
+                </label>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label fw-bold small">Instructions for Candidates</label>
+              {{ form.instructions }}
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-bold small">Reference Materials / API Documentation</label>
+              {{ form.reference_materials }}
+            </div>
+          </div>
+
+          <!-- Section 4: Supporting Attachment -->
+          <h5 class="fw-bold mb-3 pb-2 border-bottom" style="color: var(--navy);">
+            <i class="bi bi-paperclip me-2"></i>4. Supporting Attachment (Optional)
+          </h5>
+
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label class="form-label fw-bold small">Attachment Title</label>
+              {{ attachment_form.title }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold small">Upload Asset / Starter Code / PDF Spec</label>
+              {{ attachment_form.file }}
+            </div>
+          </div>
+
+          <!-- Section 5: Publication Status -->
+          <h5 class="fw-bold mb-3 pb-2 border-bottom" style="color: var(--navy);">
+            <i class="bi bi-toggle-on me-2"></i>5. Publication Status
+          </h5>
+
+          <div class="row g-3 mb-4">
+            <div class="col-md-4">
+              <label class="form-label fw-bold small">Status</label>
+              {{ form.status }}
+              <div class="form-text small">Save as Draft or Publish immediately.</div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+            <a href="{% url 'challenges:recruiter_challenge_list' %}" class="btn btn-outline-secondary">Cancel</a>
+            <button type="submit" class="btn btn-nex-primary">
+              <i class="bi bi-check2-circle me-1"></i> Save Challenge &amp; Proceed to Candidate Selection
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+
+{% block title %}Evaluate Candidate: {{ submission.assignment.student.user.get_full_name|default:submission.assignment.student.user.username }} — Recruiter Workspace{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div>
+      <div class="badge mb-2" style="background-color: var(--sage); color: var(--navy); font-weight: 700;">
+        <i class="bi bi-award-fill me-1"></i> Evaluation Centre
+      </div>
+      <h2 class="fw-bold mb-1" style="color: var(--navy);">
+        Evaluate: {{ submission.assignment.student.user.get_full_name|default:submission.assignment.student.user.username }}
+      </h2>
+      <p class="text-muted small mb-0">
+        Challenge: <strong>{{ challenge.title }}</strong> &bull;
+        Max Marks: <strong>{{ challenge.maximum_marks }}</strong> &bull;
+        Submission #{{ submission.submission_number }} &bull;
+        Submitted on: {{ submission.submitted_at|date:"M d, Y h:i A" }}
+      </p>
+    </div>
+    <a href="{% url 'challenges:recruiter_challenge_detail' challenge.id %}" class="btn btn-nex-outline">
+      <i class="bi bi-arrow-left me-1"></i> Back to Challenge
+    </a>
+  </div>
+
+  <div class="row g-4">
+    <!-- Left Column: Candidate Deliverables & Solution Code -->
+    <div class="col-lg-6">
+      <div class="card shadow-sm border-0 p-4 mb-4" style="border-radius: var(--radius-md);">
+        <h5 class="fw-bold mb-3" style="color: var(--navy);"><i class="bi bi-box-seam me-2"></i>Candidate Deliverables</h5>
+
+        <div class="d-flex flex-wrap gap-2 mb-4">
+          {% if submission.uploaded_file %}
+            <a href="{{ submission.uploaded_file.url }}" class="btn btn-sm btn-outline-primary" target="_blank">
+              <i class="bi bi-download me-1"></i> Download Source Code / ZIP
+            </a>
+          {% endif %}
+          {% if submission.repository_url %}
+            <a href="{{ submission.repository_url }}" class="btn btn-sm btn-outline-dark" target="_blank">
+              <i class="bi bi-github me-1"></i> View GitHub Repository
+            </a>
+          {% endif %}
+          {% if submission.demonstration_url %}
+            <a href="{{ submission.demonstration_url }}" class="btn btn-sm btn-outline-info" target="_blank">
+              <i class="bi bi-display me-1"></i> Open Live Demo
+            </a>
+          {% endif %}
+          {% if submission.supporting_document %}
+            <a href="{{ submission.supporting_document.url }}" class="btn btn-sm btn-outline-danger" target="_blank">
+              <i class="bi bi-file-earmark-pdf me-1"></i> Architecture Doc (PDF)
+            </a>
+          {% endif %}
+        </div>
+
+        <h6 class="fw-bold small text-muted text-uppercase mb-2">Solution Explanation &amp; Approach</h6>
+        <div class="p-3 rounded bg-light border" style="max-height: 380px; overflow-y: auto;">
+          <p class="small mb-0" style="white-space: pre-line;">{{ submission.description }}</p>
+        </div>
+
+        {% if submission.additional_comments %}
+          <div class="mt-3">
+            <h6 class="fw-bold small text-muted text-uppercase mb-1">Additional Candidate Notes</h6>
+            <p class="small text-muted mb-0">{{ submission.additional_comments }}</p>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Candidate Background Summary -->
+      <div class="card shadow-sm border-0 p-4" style="border-radius: var(--radius-md);">
+        <h6 class="fw-bold small text-muted text-uppercase mb-3"><i class="bi bi-person-badge me-2"></i>Candidate Profile Summary</h6>
+        <div class="row g-2 small">
+          <div class="col-6"><strong>Institution:</strong> {{ submission.assignment.student.institution.name|default:"Engineering College" }}</div>
+          <div class="col-6"><strong>Branch:</strong> {{ submission.assignment.student.get_branch_display }}</div>
+          <div class="col-6"><strong>Graduation Year:</strong> {{ submission.assignment.student.graduation_year }}</div>
+          <div class="col-6"><strong>CGPA:</strong> {{ submission.assignment.student.cgpa }}</div>
+        </div>
+        <div class="mt-3 pt-3 border-top">
+          <a href="{% url 'students:public_portfolio' submission.assignment.student.id %}" class="btn btn-sm btn-outline-secondary" target="_blank">
+            <i class="bi bi-folder-fill me-1"></i> View Full Verified Portfolio
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Evaluation Rubric & Feedback Form -->
+    <div class="col-lg-6">
+      <div class="card shadow-sm border-0 p-4" style="border-radius: var(--radius-md);">
+        <h5 class="fw-bold mb-3 pb-2 border-bottom" style="color: var(--navy);">
+          <i class="bi bi-clipboard-check me-2"></i>Evaluation Scoring &amp; Feedback
+        </h5>
+
+        <form method="post" id="evalForm">
+          {% csrf_token %}
+
+          {% if form.errors %}
+            <div class="alert alert-danger mb-3">
+              <strong class="small d-block mb-1">Please review the scoring inputs:</strong>
+              <ul class="mb-0 small ps-3">
+                {% for f, errors in form.errors.items %}
+                  <li>{{ f|title }}: {{ errors.0 }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+          {% endif %}
+
+          <!-- Criteria Scoring Breakdown -->
+          <div class="p-3 rounded mb-3" style="background-color: var(--cream-soft); border: 1px solid var(--border-subtle);">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="fw-bold mb-0" style="color: var(--navy);">Rubric Criteria Scoring</h6>
+              <div class="badge bg-dark fs-6" id="totalScoreBadge">
+                Total: <span id="totalMarksDisplay">{{ evaluation.total_marks }}</span> / {{ challenge.maximum_marks }}
+              </div>
+            </div>
+
+            <div class="row g-2 mb-2">
+              <div class="col-6">
+                <label class="form-label small fw-bold mb-1">Technical Correctness</label>
+                {{ form.technical_correctness }}
+              </div>
+              <div class="col-6">
+                <label class="form-label small fw-bold mb-1">Code Quality &amp; Cleanliness</label>
+                {{ form.code_quality }}
+              </div>
+              <div class="col-6">
+                <label class="form-label small fw-bold mb-1">Problem Solving &amp; Complexity</label>
+                {{ form.problem_solving }}
+              </div>
+              <div class="col-6">
+                <label class="form-label small fw-bold mb-1">Practical Implementation</label>
+                {{ form.practical_implementation }}
+              </div>
+              <div class="col-12">
+                <label class="form-label small fw-bold mb-1">Documentation &amp; Setup Clarity</label>
+                {{ form.documentation }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Written Candidate Feedback -->
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Candidate Feedback (Visible to Candidate) <span class="text-danger">*</span></label>
+            {{ form.feedback }}
+          </div>
+
+          <div class="row g-2 mb-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Observed Strengths</label>
+              {{ form.strengths }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Areas for Improvement</label>
+              {{ form.areas_for_improvement }}
+            </div>
+          </div>
+
+          <!-- Private Internal Notes -->
+          <div class="mb-3">
+            <label class="form-label small fw-bold">
+              <i class="bi bi-lock-fill text-muted me-1"></i>Internal Hiring Notes (Private to Team)
+            </label>
+            {{ form.internal_recruiter_notes }}
+          </div>
+
+          <!-- Recommended Next Stage -->
+          <div class="row g-2 mb-4">
+            <div class="col-md-7">
+              <label class="form-label small fw-bold">Recommended Next Step</label>
+              {{ form.recommended_stage }}
+            </div>
+            <div class="col-md-5">
+              <label class="form-label small fw-bold">Publication Status</label>
+              {{ form.evaluation_status }}
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+            <a href="{% url 'challenges:recruiter_challenge_detail' challenge.id %}" class="btn btn-outline-secondary">Cancel</a>
+            <button type="submit" class="btn btn-nex-primary">
+              <i class="bi bi-check-circle-fill me-1"></i> Save &amp; Publish Evaluation
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function updateTotal() {
+    const fields = ['technical_correctness', 'code_quality', 'problem_solving', 'practical_implementation', 'documentation'];
+    let sum = 0;
+    fields.forEach(id => {
+      const el = document.getElementById('id_' + id);
+      if (el) sum += parseInt(el.value || 0, 10);
+    });
+    const display = document.getElementById('totalMarksDisplay');
+    if (display) display.textContent = sum;
+  }
+
+  ['id_technical_correctness', 'id_code_quality', 'id_problem_solving', 'id_practical_implementation', 'id_documentation'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', updateTotal);
+  });
+</script>
+{% endblock %}
+

@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ challenge.title }} — Recruiter Workspace{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+  <!-- Header & Primary Actions -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div>
+      <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+        <span class="badge" style="background-color: var(--sage); color: var(--navy); font-weight: 700;">
+          <i class="bi bi-shield-lock-fill me-1"></i> Private Assessment
+        </span>
+        <span class="badge" style="background-color: var(--teal-light); color: var(--navy);">
+          {{ challenge.get_challenge_type_display }}
+        </span>
+        <span class="badge" style="background-color: var(--slate-light); color: var(--navy);">
+          {{ challenge.get_difficulty_display }}
+        </span>
+        {% if challenge.status == 'PUBLISHED' %}
+          <span class="badge bg-success">Published &amp; Active</span>
+        {% elif challenge.status == 'DRAFT' %}
+          <span class="badge bg-secondary">Draft</span>
+        {% else %}
+          <span class="badge bg-dark">Archived</span>
+        {% endif %}
+      </div>
+      <h2 class="fw-bold mb-1" style="color: var(--navy);">{{ challenge.title }}</h2>
+      <p class="text-muted small mb-0">
+        {% if challenge.job %}
+          Associated with Vacancy: <strong>{{ challenge.job.title }}</strong> &bull;
+        {% endif %}
+        Max Marks: <strong>{{ challenge.maximum_marks }}</strong> &bull;
+        Deadline: <strong>{{ challenge.deadline|date:"M d, Y h:i A" }}</strong>
+      </p>
+    </div>
+
+    <div class="d-flex gap-2 mt-3 mt-md-0">
+      <a href="{% url 'challenges:recruiter_challenge_assign' challenge.id %}" class="btn btn-nex-primary">
+        <i class="bi bi-person-plus-fill me-1"></i> Assign Candidates
+      </a>
+      <a href="{% url 'challenges:recruiter_challenge_submissions' challenge.id %}" class="btn btn-outline-secondary">
+        <i class="bi bi-inbox-fill me-1"></i> Submissions ({{ challenge.submission_count }})
+      </a>
+      <a href="{% url 'challenges:recruiter_challenge_edit' challenge.id %}" class="btn btn-nex-outline">
+        <i class="bi bi-pencil me-1"></i> Edit
+      </a>
+    </div>
+  </div>
+
+  <!-- Challenge Specs Overview Card -->
+  <div class="card shadow-sm border-0 mb-4 p-4" style="border-radius: var(--radius-md);">
+    <h5 class="fw-bold mb-3" style="color: var(--navy);"><i class="bi bi-file-earmark-text-fill me-2"></i>Problem Specification</h5>
+    <p class="text-muted mb-3">{{ challenge.problem_statement|linebreaks }}</p>
+
+    {% if challenge.technical_requirements %}
+      <div class="p-3 rounded mb-3" style="background-color: var(--cream-soft); border-left: 4px solid var(--navy);">
+        <strong class="d-block small text-muted text-uppercase mb-1">Technical Stack Constraints</strong>
+        <p class="small mb-0">{{ challenge.technical_requirements }}</p>
+      </div>
+    {% endif %}
+
+    {% if attachments %}
+      <div class="mt-2">
+        <strong class="small text-muted text-uppercase d-block mb-2">Supporting Attachments</strong>
+        <div class="d-flex flex-wrap gap-2">
+          {% for att in attachments %}
+            <a href="{{ att.file.url }}" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" target="_blank">
+              <i class="bi bi-paperclip"></i> {{ att.title }}
+            </a>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Candidate Assignments Section -->
+  <div class="card shadow-sm border-0" style="border-radius: var(--radius-md);">
+    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+      <div>
+        <h5 class="fw-bold mb-0" style="color: var(--navy);"><i class="bi bi-people-fill me-2"></i>Assigned Candidates ({{ assignments.count }})</h5>
+        <small class="text-muted">Only candidates listed below can view and submit solutions for this challenge</small>
+      </div>
+      <a href="{% url 'challenges:recruiter_challenge_assign' challenge.id %}" class="btn btn-sm btn-nex-primary">
+        <i class="bi bi-plus-lg me-1"></i> Assign More Candidates
+      </a>
+    </div>
+
+    <div class="card-body p-0">
+      {% if assignments %}
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light small text-muted text-uppercase">
+              <tr>
+                <th class="ps-3">Student Name</th>
+                <th>Institution &amp; Branch</th>
+                <th>Assigned On</th>
+                <th>Deadline</th>
+                <th>Assignment Status</th>
+                <th>Submission</th>
+                <th>Evaluation</th>
+                <th class="text-end pe-3">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for a in assignments %}
+                <tr>
+                  <td class="ps-3">
+                    <div class="fw-bold" style="color: var(--navy);">
+                      {{ a.student.user.get_full_name|default:a.student.user.username }}
+                    </div>
+                    <div class="small text-muted">{{ a.student.user.email }}</div>
+                  </td>
+                  <td>
+                    <div class="small fw-semibold">{{ a.student.institution.name|default:"Engineering Institution" }}</div>
+                    <div class="small text-muted">{{ a.student.get_branch_display }} &bull; CGPA: {{ a.student.cgpa }}</div>
+                  </td>
+                  <td>
+                    <div class="small">{{ a.assigned_at|date:"M d, Y" }}</div>
+                  </td>
+                  <td>
+                    <div class="small fw-semibold {% if a.is_deadline_passed %}text-danger{% endif %}">
+                      {{ a.deadline|date:"M d, Y" }}
+                    </div>
+                    <div class="small text-muted">{{ a.time_remaining_display }}</div>
+                  </td>
+                  <td>
+                    {% if a.status == 'ASSIGNED' %}
+                      <span class="badge bg-secondary">Assigned</span>
+                    {% elif a.status == 'IN_PROGRESS' %}
+                      <span class="badge bg-info text-dark">In Progress</span>
+                    {% elif a.status == 'SUBMITTED' %}
+                      <span class="badge bg-primary">Submitted</span>
+                    {% elif a.status == 'UNDER_REVIEW' %}
+                      <span class="badge bg-warning text-dark">Under Review</span>
+                    {% elif a.status == 'EVALUATED' %}
+                      <span class="badge bg-success">Evaluated</span>
+                    {% elif a.status == 'REVOKED' %}
+                      <span class="badge bg-danger">Revoked</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if a.latest_submission %}
+                      <a href="{% url 'challenges:recruiter_submission_evaluate' a.latest_submission.id %}" class="small fw-bold text-decoration-none">
+                        Submission #{{ a.latest_submission.submission_number }}
+                      </a>
+                      <div class="small text-muted">{{ a.latest_submission.submitted_at|date:"M d, H:i" }}</div>
+                    {% else %}
+                      <span class="small text-muted">Awaiting</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if a.latest_submission and a.latest_submission.evaluation %}
+                      <div class="small fw-bold text-success">
+                        {{ a.latest_submission.evaluation.total_marks }} / {{ challenge.maximum_marks }}
+                      </div>
+                      <span class="badge bg-light text-dark border" style="font-size: 0.7rem;">
+                        {{ a.latest_submission.evaluation.get_evaluation_status_display }}
+                      </span>
+                    {% else %}
+                      <span class="small text-muted">Not Evaluated</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-end pe-3">
+                    <div class="btn-group btn-group-sm">
+                      {% if a.latest_submission %}
+                        <a href="{% url 'challenges:recruiter_submission_evaluate' a.latest_submission.id %}" class="btn btn-sm btn-outline-success">
+                          <i class="bi bi-clipboard-check"></i> Evaluate
+                        </a>
+                      {% endif %}
+                      {% if a.status != 'REVOKED' %}
+                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#revokeModal{{ a.id }}" title="Revoke Candidate Assignment">
+                          <i class="bi bi-x-circle"></i> Revoke
+                        </button>
+                      {% endif %}
+                    </div>
+
+                    <!-- Revoke Modal -->
+                    <div class="modal fade text-start" id="revokeModal{{ a.id }}" tabindex="-1" aria-hidden="true">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <form method="post" action="{% url 'challenges:recruiter_assignment_revoke' a.id %}">
+                            {% csrf_token %}
+                            <div class="modal-header">
+                              <h5 class="modal-title text-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>Revoke Candidate Assignment</h5>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                              <p class="small">
+                                Are you sure you want to revoke assignment access for <strong>{{ a.student.user.get_full_name|default:a.student.user.username }}</strong>?
+                              </p>
+                              <div class="mb-3">
+                                <label class="form-label small fw-bold">Reason for Revocation</label>
+                                <textarea name="revocation_reason" class="form-control" rows="2" placeholder="e.g. Candidate withdrew or failed qualification check..." required></textarea>
+                              </div>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                              <button type="submit" class="btn btn-sm btn-danger">Confirm Revocation</button>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="text-center py-5">
+          <i class="bi bi-people text-muted display-4"></i>
+          <h5 class="mt-3 fw-bold" style="color: var(--navy);">No Candidates Assigned Yet</h5>
+          <p class="text-muted small mb-3">Assign candidates from your applicant pipeline so they can access this private challenge.</p>
+          <a href="{% url 'challenges:recruiter_challenge_assign' challenge.id %}" class="btn btn-nex-primary">
+            <i class="bi bi-person-plus-fill me-1"></i> Assign Candidates Now
+          </a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+

@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}Explore Engineering Jobs — Nexgrad{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <!-- Search Header -->
+  <div class="mb-5 text-center">
+    <h2 class="fw-bold" style="color: var(--navy);">Explore Engineering Opportunities</h2>
+    <p class="text-muted">Discover verified full-time, contract, and graduate engineer trainee roles.</p>
+
+    <!-- Search Form (GET Method) -->
+    <form method="get" class="row g-2 justify-content-center mt-3">
+      <div class="col-md-4">
+        <input type="text" name="q" value="{{ query }}" class="form-control py-2" placeholder="Search by title, skills, or company...">
+      </div>
+      <div class="col-md-3">
+        <input type="text" name="location" value="{{ location }}" class="form-control py-2" placeholder="Location / Place (e.g. Bengaluru, Remote)...">
+      </div>
+      <div class="col-md-3">
+        <select name="job_type" class="form-select py-2">
+          <option value="">All Job Types</option>
+          <option value="FULL_TIME" {% if job_type == 'FULL_TIME' %}selected{% endif %}>Full-Time</option>
+          <option value="GRADUATE" {% if job_type == 'GRADUATE' %}selected{% endif %}>Graduate Engineer Trainee</option>
+          <option value="CONTRACT" {% if job_type == 'CONTRACT' %}selected{% endif %}>Contractual</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-nex-primary w-100 py-2 justify-content-center">
+          <i class="bi bi-search me-1"></i> Search
+        </button>
+      </div>
+    </form>
+    {% if query or location or job_type %}
+      <div class="mt-2 small">
+        <span class="text-muted">Filtering active &bull;</span>
+        <a href="{% url 'jobs:list' %}" class="text-decoration-none ms-1 text-danger fw-semibold">
+          <i class="bi bi-x-circle me-1"></i>Clear all filters
+        </a>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Job Cards Grid -->
+  <div class="row g-4">
+    {% if page_obj %}
+      {% for job in page_obj %}
+        <div class="col-md-6 col-lg-4">
+          <div class="job-card h-100 d-flex flex-column justify-content-between">
+            <div>
+              <!-- Top Badges Row: Company + Category + Workplace & Seniority -->
+              <div class="d-flex flex-wrap justify-content-between align-items-center gap-1 mb-2">
+                <div class="d-flex flex-wrap align-items-center gap-1">
+                  <span class="job-company-badge">{{ job.company.name }}</span>
+                  <span class="badge" style="background-color: #E8F1F5; color: var(--navy); font-size: 0.75rem;">
+                    {{ job.display_service_category }}
+                  </span>
+                </div>
+                <div class="d-flex align-items-center gap-1">
+                  <span class="badge" style="background-color: var(--slate-light); color: var(--slate); font-size: 0.75rem;">
+                    {{ job.get_workplace_type_display }}
+                  </span>
+                  <span class="badge" style="background-color: var(--navy); color: #fff; font-size: 0.72rem;">
+                    {{ job.seniority_level }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Title -->
+              <h5 class="fw-bold mb-2">
+                <a href="{% url 'jobs:detail' job.id %}" class="text-decoration-none" style="color: var(--navy);">
+                  {{ job.clean_title }}
+                </a>
+              </h5>
+
+              <!-- Distinct Structured Attributes -->
+              <div class="job-meta-grid mb-3">
+                <div class="d-flex align-items-center text-muted small mb-1">
+                  <i class="bi bi-geo-alt-fill text-danger me-2" style="font-size: 0.95rem;"></i>
+                  <span class="text-truncate">{{ job.location }}</span>
+                </div>
+                <div class="d-flex align-items-center text-muted small mb-1">
+                  <i class="bi bi-diagram-3-fill text-primary me-2" style="font-size: 0.95rem;"></i>
+                  <span class="text-truncate">{{ job.display_service_category }}</span>
+                </div>
+                <div class="d-flex align-items-center small mb-1" style="color: var(--slate);">
+                  <i class="bi bi-cash-stack text-success me-2" style="font-size: 0.95rem;"></i>
+                  <span class="fw-semibold">{{ job.display_salary }}</span>
+                </div>
+              </div>
+
+              <!-- Skill Tags -->
+              <div class="mb-3">
+                {% for s in job.required_skills.all|slice:":4" %}
+                  <span class="skill-tag">{{ s.name }}</span>
+                {% endfor %}
+              </div>
+            </div>
+
+            <!-- Card Footer -->
+            <div class="d-flex justify-content-between align-items-center pt-3 mt-auto" style="border-top: 1px solid var(--border-subtle);">
+              <small class="text-muted"><i class="bi bi-mortarboard me-1"></i>Eligible: <strong>{{ job.eligible_branches }}</strong></small>
+              <a href="{% url 'jobs:detail' job.id %}" class="btn btn-sm btn-nex-primary">View Details</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="col-12 text-center py-5">
+        <i class="bi bi-search text-muted display-4"></i>
+        <h5 class="mt-3 text-muted">No matching opportunities found</h5>
+        <p class="small text-muted">Try clearing your search query or browsing all opportunities.</p>
+        <a href="{% url 'jobs:list' %}" class="btn btn-sm btn-nex-outline">Clear Filters</a>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Pagination -->
+  {% if page_obj.has_other_pages %}
+    <nav class="mt-5">
+      <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+          <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if location %}&location={{ location }}{% endif %}{% if job_type %}&job_type={{ job_type }}{% endif %}">Previous</a></li>
+        {% endif %}
+        <li class="page-item active"><span class="page-link">{{ page_obj.number }}</span></li>
+        {% if page_obj.has_next %}
+          <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if location %}&location={{ location }}{% endif %}{% if job_type %}&job_type={{ job_type }}{% endif %}">Next</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  {% endif %}
+</div>
+{% endblock %}
+

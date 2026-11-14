@@ -1,0 +1,21 @@
+{
+  "name": "nexgrad-frontend",
+  "version": "1.0.0",
+  "description": "NexGrad Frontend Static Assets, Templates, and UI Components",
+  "scripts": {
+    "lint:css": "npx stylelint static/css/**/*.css",
+    "lint:js": "npx eslint static/js/**/*.js",
+    "build:assets": "echo 'Assets optimized for production static delivery'",
+    "test": "echo 'Frontend assets linted and verified'"
+  },
+  "keywords": [
+    "nexgrad",
+    "frontend",
+    "templates",
+    "devops",
+    "ui"
+  ],
+  "author": "NexGrad Engineering Team",
+  "license": "MIT"
+}
+

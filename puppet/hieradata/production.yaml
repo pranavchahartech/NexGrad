@@ -1,0 +1,8 @@
+---
+# Production Hiera Configuration
+nexgrad::environment: "production"
+nexgrad::django_debug: false
+nexgrad::gunicorn_workers: 4
+nexgrad::uvicorn_workers: 2
+nexgrad::nginx_client_max_body_size: "20M"
+nexgrad::monitoring::alert_email: "karthiksn20112004@gmail.com"

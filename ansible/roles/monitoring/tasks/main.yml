@@ -1,0 +1,16 @@
+---
+- name: Install Nagios monitoring packages
+  ansible.builtin.apt:
+    name:
+      - nagios4
+      - nagios-plugins
+      - nagios-nrpe-plugin
+    state: present
+    update_cache: true
+
+- name: Ensure Nagios service is enabled and started
+  ansible.builtin.systemd:
+    name: nagios4
+    enabled: true
+    state: started
+

@@ -1,0 +1,38 @@
+server {
+    listen {{ frontend_port }};
+    server_name _;
+
+    # Direct static assets serving from Nginx cache
+    location /static/ {
+        alias {{ frontend_root }}/static/;
+        expires 30d;
+        add_header Cache-Control "public, max-age=2592000, immutable";
+        access_log off;
+    }
+
+    # Direct media uploads serving
+    location /media/ {
+        alias {{ frontend_root }}/media/;
+        expires 7d;
+        add_header Cache-Control "public, max-age=604800";
+    }
+
+    # Load Balancer & Monitoring Health Endpoint
+    location /healthz {
+        access_log off;
+        return 200 "healthy\n";
+    }
+
+    # Reverse proxy to Django application running on EC2-2
+    location / {
+        proxy_pass http://{{ hostvars[groups['production_app'][0]]['ansible_host'] }}:{{ backend_port }};
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_connect_timeout 60s;
+        proxy_read_timeout 120s;
+    }
+}
+

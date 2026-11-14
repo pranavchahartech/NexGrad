@@ -1,0 +1,17 @@
+[Unit]
+Description=NexGrad Django Backend
+After=network.target
+
+[Service]
+User={{ app_user }}
+Group={{ app_group }}
+WorkingDirectory={{ django_app_dir }}
+EnvironmentFile={{ gemini_secret_path }}
+Environment=DJANGO_DEBUG=False
+ExecStart={{ django_venv }}/bin/gunicorn {{ django_wsgi_module }} --bind {{ gunicorn_bind }} --workers {{ django_workers }}
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+

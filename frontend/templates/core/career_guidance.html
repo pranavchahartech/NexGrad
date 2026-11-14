@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}Career Intelligence & Guidance — Nexgrad{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="text-center mb-5">
+    <div class="section-eyebrow">Explainable Intelligence</div>
+    <h2 class="fw-bold" style="color: var(--navy);">Engineering Career Roadmaps & Skill Gap Analysis</h2>
+    <p class="text-muted">Explore structured development paths designed to align academic engineering curricula with industry expectations.</p>
+  </div>
+
+  <div class="row g-4">
+    <!-- Roadmap 1: Full Stack Systems Engineer -->
+    <div class="col-md-4">
+      <div class="card p-4 shadow-sm border-0 h-100" style="border-radius: var(--radius-md);">
+        <div class="badge align-self-start mb-3" style="background-color: var(--slate); color: #fff;">Backend & Systems</div>
+        <h4 class="fw-bold" style="color: var(--navy);">Full Stack Python/Django Engineer</h4>
+        <p class="text-muted small">Master relational database architecture, REST APIs, asynchronous task workers, and responsive frontend systems.</p>
+        <hr>
+        <h6 class="small fw-bold text-uppercase text-muted">Core Milestones</h6>
+        <ul class="small text-muted ps-3">
+          <li>Python OOP, Data Structures & Concurrency</li>
+          <li>Django MVT, ORM Relations & Authentication</li>
+          <li>PostgreSQL, Indexing & Query Optimization</li>
+          <li>Containerization with Docker & Cloud Deployment</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Roadmap 2: Cloud & DevOps Engineer -->
+    <div class="col-md-4">
+      <div class="card p-4 shadow-sm border-0 h-100" style="border-radius: var(--radius-md);">
+        <div class="badge align-self-start mb-3" style="background-color: var(--teal); color: var(--navy);">Cloud & Infrastructure</div>
+        <h4 class="fw-bold" style="color: var(--navy);">Cloud & Infrastructure Engineer</h4>
+        <p class="text-muted small">Design reliable, scalable cloud environments with infrastructure-as-code and automated CI/CD pipelines.</p>
+        <hr>
+        <h6 class="small fw-bold text-uppercase text-muted">Core Milestones</h6>
+        <ul class="small text-muted ps-3">
+          <li>Linux Internals, Shell Scripting & Networking</li>
+          <li>AWS / GCP Core Services & VPC Architecture</li>
+          <li>Kubernetes Cluster Orchestration & Helm</li>
+          <li>Terraform Infrastructure Automation</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Roadmap 3: AI & Machine Learning Engineer -->
+    <div class="col-md-4">
+      <div class="card p-4 shadow-sm border-0 h-100" style="border-radius: var(--radius-md);">
+        <div class="badge align-self-start mb-3" style="background-color: var(--sage); color: var(--navy);">Applied AI</div>
+        <h4 class="fw-bold" style="color: var(--navy);">AI Systems & ML Engineer</h4>
+        <p class="text-muted small">Bridge data science and production engineering through model deployment and scalable pipelines.</p>
+        <hr>
+        <h6 class="small fw-bold text-uppercase text-muted">Core Milestones</h6>
+        <ul class="small text-muted ps-3">
+          <li>Linear Algebra, Calculus & Statistical Modeling</li>
+          <li>Feature Engineering & PyTorch / Scikit-Learn</li>
+          <li>Model Serving with FastAPI & Triton</li>
+          <li>LLM Fine-Tuning & Vector Databases</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

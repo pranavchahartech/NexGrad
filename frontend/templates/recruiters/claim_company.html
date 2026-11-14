@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block title %}Claim Company Profile: {{ company.name }} — CareerForge Verification{% endblock %}
+
+{% block content %}
+<div class="container py-4 py-md-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+
+      <!-- Breadcrumb & Back -->
+      <div class="mb-3">
+        <a href="{% url 'recruiters:company_detail' company.slug %}" class="small text-decoration-none text-muted">
+          <i class="bi bi-arrow-left me-1"></i> Back to {{ company.name }} Profile
+        </a>
+      </div>
+
+      <div class="card shadow-sm border-0 p-4 p-md-5" style="border-radius: var(--radius-md);">
+        
+        <!-- Header -->
+        <div class="text-center mb-4 pb-3 border-bottom">
+          <div class="badge mb-2" style="background-color: var(--sage); color: var(--navy); font-weight: 700;">
+            <i class="bi bi-patch-check-fill me-1"></i> Official Corporate Verification
+          </div>
+          <h2 class="fw-bold" style="color: var(--navy);">Claim &amp; Manage {{ company.name }}</h2>
+          <p class="text-muted small mx-auto" style="max-width: 580px;">
+            Establish authorized ownership of this company's platform-managed talent profile. Upon administrative approval of your corporate credentials, you will receive full control to post custom jobs, review applicants, and assign technical challenges.
+          </p>
+        </div>
+
+        {% if existing_claim %}
+          <div class="alert alert-warning p-4 rounded mb-4">
+            <h5 class="fw-bold mb-2"><i class="bi bi-clock-history me-2"></i>Verification Claim Pending Review</h5>
+            <p class="small mb-2">
+              You submitted a verification claim for <strong>{{ company.name }}</strong> on {{ existing_claim.created_at|date:"M d, Y" }}.
+            </p>
+            <div class="small text-muted mb-0">
+              <strong>Work Email Provided:</strong> {{ existing_claim.work_email }}<br>
+              <strong>Status:</strong> <span class="badge bg-warning text-dark">{{ existing_claim.get_status_display }}</span>
+            </div>
+          </div>
+        {% else %}
+          <!-- Verification Form -->
+          <form method="post">
+            {% csrf_token %}
+
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Official Corporate Email <span class="text-danger">*</span></label>
+                <input 
+                  type="email" 
+                  name="work_email" 
+                  class="form-control" 
+                  placeholder="e.g. yourname@{{ company.name|lower|cut:' ' }}.com"
+                  required
+                >
+                <div class="form-text small">Must match the company's verified email domain.</div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Your Official Designation <span class="text-danger">*</span></label>
+                <input 
+                  type="text" 
+                  name="official_designation" 
+                  class="form-control" 
+                  placeholder="e.g. Head of Talent Acquisition / Engineering Recruiter"
+                  required
+                >
+              </div>
+
+              <div class="col-12">
+                <label class="form-label small fw-bold">Verification Proof / Profile Link</label>
+                <input 
+                  type="url" 
+                  name="proof_link" 
+                  class="form-control" 
+                  placeholder="e.g. Official LinkedIn profile URL or corporate employee directory link"
+                >
+                <div class="form-text small">Provides verification proof of your role at {{ company.name }}.</div>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label small fw-bold">Statement of Authority <span class="text-danger">*</span></label>
+                <textarea 
+                  name="claim_statement" 
+                  rows="4" 
+                  class="form-control" 
+                  placeholder="Briefly state your capacity to manage recruitment and talent evaluation on behalf of {{ company.name }}..."
+                  required
+                ></textarea>
+              </div>
+            </div>
+
+            <!-- Security Rules & Notice (Requirement 3) -->
+            <div class="p-3 rounded mb-4" style="background-color: var(--cream-soft); border-left: 4px solid var(--slate);">
+              <h6 class="fw-bold mb-1" style="color: var(--navy); font-size: 0.9rem;">
+                <i class="bi bi-shield-lock-fill me-1"></i>CareerForge Verification Safeguards
+              </h6>
+              <ul class="small text-muted mb-0 ps-3">
+                <li>Claim requests are audited against official domain records and corporate credentials.</li>
+                <li>Fictitious, personal (gmail/yahoo), or unauthorized claims are systematically rejected.</li>
+                <li>Upon administrative approval, full management rights of the recruiter profile and job pipeline are securely transferred.</li>
+              </ul>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center">
+              <a href="{% url 'recruiters:company_detail' company.slug %}" class="btn btn-nex-outline">
+                Cancel
+              </a>
+              <button type="submit" class="btn btn-nex-primary">
+                <i class="bi bi-send-check-fill me-1"></i> Submit Verification Claim
+              </button>
+            </div>
+          </form>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

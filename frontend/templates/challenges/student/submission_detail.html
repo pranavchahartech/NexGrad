@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}Submission #{{ submission.submission_number }} — {{ challenge.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-9">
+
+      <!-- Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+        <div>
+          <div class="badge mb-2 bg-success text-white">
+            <i class="bi bi-check-circle-fill me-1"></i> Solution Submitted
+          </div>
+          <h2 class="fw-bold mb-1" style="color: var(--navy);">Submission #{{ submission.submission_number }}: {{ challenge.title }}</h2>
+          <p class="text-muted small mb-0">
+            Assigned by: <strong>{{ challenge.recruiter.company.name|default:"Hiring Partner" }}</strong> &bull;
+            Submitted on: <strong>{{ submission.submitted_at|date:"M d, Y h:i A" }}</strong>
+          </p>
+        </div>
+        <div class="d-flex gap-2">
+          <a href="{% url 'challenges:student_my_challenges' %}" class="btn btn-nex-outline">
+            <i class="bi bi-arrow-left me-1"></i> My Challenges
+          </a>
+        </div>
+      </div>
+
+      <!-- If Evaluated and Released -->
+      {% if evaluation %}
+        <div class="card shadow-sm border-0 mb-4 p-4" style="border-radius: var(--radius-md); background: linear-gradient(135deg, var(--navy) 0%, #107574 100%); color: #ffffff;">
+          <div class="d-flex flex-wrap justify-content-between align-items-center">
+            <div>
+              <div class="badge bg-light text-dark fw-bold mb-2">Evaluation Released</div>
+              <h3 class="fw-bold mb-1">Score: {{ evaluation.total_marks }} / {{ challenge.maximum_marks }}</h3>
+              <p class="mb-0 small text-light">The recruiting team has reviewed your submission. Detailed rubric feedback is available.</p>
+            </div>
+            <div class="mt-3 mt-md-0">
+              <a href="{% url 'challenges:student_challenge_feedback' assignment.id %}" class="btn btn-light fw-bold" style="color: var(--navy);">
+                <i class="bi bi-clipboard-data-fill me-1"></i> View Full Evaluation &amp; Feedback
+              </a>
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <div class="alert alert-info shadow-sm mb-4">
+          <i class="bi bi-hourglass-split me-2"></i>
+          <strong>Under Recruiter Review:</strong> Your solution package has been successfully delivered to the recruiting team. You will be notified as soon as your evaluation and feedback are released.
+        </div>
+      {% endif %}
+
+      <!-- Deliverables Overview -->
+      <div class="card shadow-sm border-0 p-4 mb-4" style="border-radius: var(--radius-md);">
+        <h5 class="fw-bold mb-3" style="color: var(--navy);"><i class="bi bi-folder-check me-2"></i>Submitted Deliverables</h5>
+
+        <div class="d-flex flex-wrap gap-2 mb-4">
+          {% if submission.uploaded_file %}
+            <a href="{{ submission.uploaded_file.url }}" class="btn btn-sm btn-outline-primary" target="_blank">
+              <i class="bi bi-file-earmark-zip me-1"></i> Download Code Archive
+            </a>
+          {% endif %}
+          {% if submission.repository_url %}
+            <a href="{{ submission.repository_url }}" class="btn btn-sm btn-outline-dark" target="_blank">
+              <i class="bi bi-github me-1"></i> Open Repository Link
+            </a>
+          {% endif %}
+          {% if submission.demonstration_url %}
+            <a href="{{ submission.demonstration_url }}" class="btn btn-sm btn-outline-info" target="_blank">
+              <i class="bi bi-display me-1"></i> Open Live Demonstration
+            </a>
+          {% endif %}
+          {% if submission.supporting_document %}
+            <a href="{{ submission.supporting_document.url }}" class="btn btn-sm btn-outline-danger" target="_blank">
+              <i class="bi bi-file-earmark-pdf me-1"></i> View PDF Documentation
+            </a>
+          {% endif %}
+        </div>
+
+        <h6 class="fw-bold small text-muted text-uppercase mb-2">Solution Overview &amp; Architecture Description</h6>
+        <div class="p-3 rounded bg-light border">
+          <p class="small mb-0" style="white-space: pre-line;">{{ submission.description }}</p>
+        </div>
+
+        {% if submission.additional_comments %}
+          <div class="mt-3">
+            <h6 class="fw-bold small text-muted text-uppercase mb-1">Additional Candidate Comments</h6>
+            <p class="small text-muted mb-0">{{ submission.additional_comments }}</p>
+          </div>
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+

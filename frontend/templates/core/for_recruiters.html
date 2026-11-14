@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}For Recruiters — Nexgrad{% endblock %}
+
+{% block content %}
+<div class="container py-5 text-center">
+  <div class="badge mb-2" style="background-color: var(--teal); color: var(--navy);">Corporate Talent Acquisition</div>
+  <h2 class="fw-bold mb-3" style="color: var(--navy);">Discover Engineering Talent Beyond Resumes</h2>
+  <p class="text-muted max-w-600 mx-auto mb-4">
+    Evaluate candidates based on verifiable GitHub projects, practical coding assessments, and institutional endorsements.
+  </p>
+  <a href="{% url 'accounts:register_recruiter' %}" class="btn btn-nex-primary py-2 px-4">
+    Register as Company Recruiter
+  </a>
+</div>
+{% endblock %}
+

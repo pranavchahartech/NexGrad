@@ -1,0 +1,5 @@
+# Production Terraform Variables Example
+aws_region    = "us-east-1"
+instance_type = "t3.medium"
+db_username   = "nexgrad_prod_admin"
+alert_email   = "karthiksn20112004@gmail.com"

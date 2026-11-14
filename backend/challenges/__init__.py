@@ -1,0 +1,2 @@
+# Challenges module initialization
+

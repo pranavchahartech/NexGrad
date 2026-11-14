@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+
+{% block title %}Challenge Management — Recruiter Workspace{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+  <!-- Header & Actions -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div>
+      <div class="badge mb-2" style="background-color: var(--sage); color: var(--navy); font-weight: 700;">
+        <i class="bi bi-shield-lock-fill me-1"></i> Private Assessment Module
+      </div>
+      <h2 class="fw-bold mb-1" style="color: var(--navy);">Challenge Management</h2>
+      <p class="text-muted small mb-0">Create, assign, and evaluate private technical challenges for shortlisted candidates</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2 mt-3 mt-md-0">
+      <a href="{% url 'challenges:recruiter_challenge_create' %}" class="btn btn-nex-primary">
+        <i class="bi bi-plus-circle me-1"></i> Create Challenge
+      </a>
+      <a href="{% url 'recruiters:dashboard' %}" class="btn btn-nex-outline">
+        <i class="bi bi-grid-fill me-1"></i> Recruiter Workspace
+      </a>
+    </div>
+  </div>
+
+  <!-- Metrics Strip -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="p-3 bg-white rounded border shadow-sm">
+        <div class="small text-muted fw-bold">Total Challenges</div>
+        <div class="fs-3 fw-bold" style="color: var(--navy);">{{ total_challenges }}</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="p-3 bg-white rounded border shadow-sm">
+        <div class="small text-muted fw-bold">Active / Published</div>
+        <div class="fs-3 fw-bold" style="color: var(--slate);">{{ active_published }}</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="p-3 bg-white rounded border shadow-sm">
+        <div class="small text-muted fw-bold">Candidates Assigned</div>
+        <div class="fs-3 fw-bold" style="color: var(--navy);">{{ total_assignments }}</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="p-3 bg-white rounded border shadow-sm">
+        <div class="small text-muted fw-bold">Pending Evaluation</div>
+        <div class="fs-3 fw-bold text-warning">{{ pending_evaluations }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Tabs -->
+  <ul class="nav nav-pills mb-4 gap-2">
+    <li class="nav-item">
+      <a class="nav-link {% if status_filter == 'ALL' %}active bg-dark{% else %}text-dark bg-white border{% endif %}" href="?status=ALL">All Challenges</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link {% if status_filter == 'PUBLISHED' %}active bg-dark{% else %}text-dark bg-white border{% endif %}" href="?status=PUBLISHED">Published &amp; Active</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link {% if status_filter == 'DRAFT' %}active bg-dark{% else %}text-dark bg-white border{% endif %}" href="?status=DRAFT">Drafts</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link {% if status_filter == 'ARCHIVED' %}active bg-dark{% else %}text-dark bg-white border{% endif %}" href="?status=ARCHIVED">Archived</a>
+    </li>
+  </ul>
+
+  <!-- Challenge Table -->
+  <div class="card shadow-sm border-0" style="border-radius: var(--radius-md);">
+    <div class="card-body p-0">
+      {% if challenges %}
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr class="small text-muted text-uppercase">
+                <th class="ps-3">Challenge Title</th>
+                <th>Target Vacancy</th>
+                <th>Type &amp; Difficulty</th>
+                <th>Assigned Candidates</th>
+                <th>Submissions</th>
+                <th>Evaluated</th>
+                <th>Deadline</th>
+                <th>Status</th>
+                <th class="text-end pe-3">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for ch in challenges %}
+                <tr>
+                  <td class="ps-3">
+                    <a href="{% url 'challenges:recruiter_challenge_detail' ch.id %}" class="fw-bold text-decoration-none" style="color: var(--navy);">
+                      {{ ch.title }}
+                    </a>
+                    <div class="small text-muted">Max: {{ ch.maximum_marks }} Marks</div>
+                  </td>
+                  <td>
+                    {% if ch.job %}
+                      <span class="badge" style="background-color: var(--slate-light); color: var(--navy);">{{ ch.job.title }}</span>
+                    {% else %}
+                      <span class="text-muted small">General Challenge</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <span class="badge" style="background-color: var(--teal-light); color: var(--navy);">{{ ch.get_challenge_type_display }}</span>
+                    <div class="small text-muted mt-1">{{ ch.get_difficulty_display }}</div>
+                  </td>
+                  <td>
+                    <span class="fw-bold fs-6">{{ ch.assigned_count }}</span>
+                  </td>
+                  <td>
+                    <span class="badge bg-secondary">{{ ch.submission_count }}</span>
+                  </td>
+                  <td>
+                    <span class="badge bg-success">{{ ch.evaluated_count }}</span>
+                  </td>
+                  <td>
+                    <div class="small fw-semibold">{{ ch.deadline|date:"M d, Y" }}</div>
+                    <div class="small text-muted">{{ ch.deadline|time:"h:i A" }}</div>
+                  </td>
+                  <td>
+                    {% if ch.status == 'PUBLISHED' %}
+                      <span class="badge bg-success">Published</span>
+                    {% elif ch.status == 'DRAFT' %}
+                      <span class="badge bg-secondary">Draft</span>
+                    {% else %}
+                      <span class="badge bg-dark">Archived</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-end pe-3">
+                    <div class="btn-group btn-group-sm">
+                      <a href="{% url 'challenges:recruiter_challenge_detail' ch.id %}" class="btn btn-outline-secondary" title="View details & candidates">
+                        <i class="bi bi-eye"></i>
+                      </a>
+                      <a href="{% url 'challenges:recruiter_challenge_assign' ch.id %}" class="btn btn-outline-primary" title="Assign Candidates">
+                        <i class="bi bi-person-plus-fill"></i> Assign
+                      </a>
+                      <a href="{% url 'challenges:recruiter_challenge_edit' ch.id %}" class="btn btn-outline-secondary" title="Edit Challenge">
+                        <i class="bi bi-pencil"></i>
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="text-center py-5">
+          <i class="bi bi-file-earmark-code text-muted display-4"></i>
+          <h5 class="mt-3 fw-bold" style="color: var(--navy);">No Challenges Found</h5>
+          <p class="text-muted small mb-3">You haven't created any technical challenges matching this filter yet.</p>
+          <a href="{% url 'challenges:recruiter_challenge_create' %}" class="btn btn-nex-primary">
+            <i class="bi bi-plus-circle me-1"></i> Create First Challenge
+          </a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+

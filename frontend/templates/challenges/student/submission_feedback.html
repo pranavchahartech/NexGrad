@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}Evaluation Feedback: {{ challenge.title }} — Private Assessment{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-9">
+
+      <!-- Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+        <div>
+          <div class="badge mb-2 bg-success text-white">
+            <i class="bi bi-award-fill me-1"></i> Official Recruiter Evaluation
+          </div>
+          <h2 class="fw-bold mb-1" style="color: var(--navy);">Evaluation Results: {{ challenge.title }}</h2>
+          <p class="text-muted small mb-0">
+            Assigned by: <strong>{{ challenge.recruiter.company.name|default:"Hiring Partner" }}</strong> &bull;
+            Evaluated on: <strong>{{ evaluation.evaluated_at|date:"M d, Y h:i A" }}</strong>
+          </p>
+        </div>
+        <div class="d-flex gap-2">
+          <a href="{% url 'challenges:student_my_challenges' %}" class="btn btn-nex-outline">
+            <i class="bi bi-arrow-left me-1"></i> My Challenges
+          </a>
+        </div>
+      </div>
+
+      <!-- Score Card -->
+      <div class="card shadow-sm border-0 mb-4 p-4 text-center" style="border-radius: var(--radius-md); background: linear-gradient(135deg, var(--navy) 0%, #107574 100%); color: #ffffff;">
+        <span class="badge bg-light text-dark fw-bold mb-2 mx-auto" style="width: fit-content;">Total Assessment Score</span>
+        <div class="display-3 fw-bold mb-1">{{ evaluation.total_marks }} <span class="fs-4 text-light">/ {{ challenge.maximum_marks }}</span></div>
+        <div class="badge bg-success fs-6 p-2 mx-auto" style="width: fit-content;">
+          <i class="bi bi-check-circle-fill me-1"></i> Next Step: {{ evaluation.get_recommended_stage_display }}
+        </div>
+      </div>
+
+      <!-- Criteria Breakdown Card -->
+      <div class="card shadow-sm border-0 p-4 mb-4" style="border-radius: var(--radius-md);">
+        <h5 class="fw-bold mb-3" style="color: var(--navy);"><i class="bi bi-bar-chart-fill me-2"></i>Multi-Criteria Rubric Breakdown</h5>
+        
+        <div class="row g-3">
+          <div class="col-6 col-md">
+            <div class="p-3 bg-light rounded text-center border">
+              <div class="small text-muted fw-bold">Technical Correctness</div>
+              <div class="fs-4 fw-bold" style="color: var(--navy);">{{ evaluation.technical_correctness }}</div>
+            </div>
+          </div>
+          <div class="col-6 col-md">
+            <div class="p-3 bg-light rounded text-center border">
+              <div class="small text-muted fw-bold">Code Quality</div>
+              <div class="fs-4 fw-bold" style="color: var(--navy);">{{ evaluation.code_quality }}</div>
+            </div>
+          </div>
+          <div class="col-6 col-md">
+            <div class="p-3 bg-light rounded text-center border">
+              <div class="small text-muted fw-bold">Problem Solving</div>
+              <div class="fs-4 fw-bold" style="color: var(--navy);">{{ evaluation.problem_solving }}</div>
+            </div>
+          </div>
+          <div class="col-6 col-md">
+            <div class="p-3 bg-light rounded text-center border">
+              <div class="small text-muted fw-bold">Implementation</div>
+              <div class="fs-4 fw-bold" style="color: var(--navy);">{{ evaluation.practical_implementation }}</div>
+            </div>
+          </div>
+          <div class="col-6 col-md">
+            <div class="p-3 bg-light rounded text-center border">
+              <div class="small text-muted fw-bold">Documentation</div>
+              <div class="fs-4 fw-bold" style="color: var(--navy);">{{ evaluation.documentation }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Written Feedback -->
+      <div class="card shadow-sm border-0 p-4 mb-4" style="border-radius: var(--radius-md);">
+        <h5 class="fw-bold mb-3" style="color: var(--navy);"><i class="bi bi-chat-left-quote-fill me-2"></i>Recruiter Feedback &amp; Review</h5>
+        <div class="p-3 rounded mb-4" style="background-color: var(--cream-soft); border-left: 4px solid var(--navy);">
+          <p class="mb-0" style="white-space: pre-line;">{{ evaluation.feedback }}</p>
+        </div>
+
+        <div class="row g-3">
+          {% if evaluation.strengths %}
+            <div class="col-md-6">
+              <div class="p-3 rounded border border-success bg-white h-100">
+                <h6 class="fw-bold text-success mb-2"><i class="bi bi-hand-thumbs-up-fill me-1"></i>Key Strengths Observed</h6>
+                <p class="small text-muted mb-0" style="white-space: pre-line;">{{ evaluation.strengths }}</p>
+              </div>
+            </div>
+          {% endif %}
+
+          {% if evaluation.areas_for_improvement %}
+            <div class="col-md-6">
+              <div class="p-3 rounded border border-warning bg-white h-100">
+                <h6 class="fw-bold text-warning text-dark mb-2"><i class="bi bi-lightning-charge-fill me-1"></i>Areas for Improvement</h6>
+                <p class="small text-muted mb-0" style="white-space: pre-line;">{{ evaluation.areas_for_improvement }}</p>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Action Footer -->
+      <div class="text-center pt-2">
+        <a href="{% url 'challenges:student_my_challenges' %}" class="btn btn-nex-outline">
+          <i class="bi bi-arrow-left me-1"></i> Return to My Challenges
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,46 @@
+---
+- name: Install Nginx
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+    update_cache: true
+
+- name: Create frontend root and assets directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: "0755"
+  loop:
+    - "{{ frontend_root }}"
+    - "{{ frontend_root }}/static"
+    - "{{ frontend_root }}/media"
+
+- name: Configure Nginx virtual host
+  ansible.builtin.template:
+    src: nexgrad.conf.j2
+    dest: /etc/nginx/sites-available/nexgrad
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart Nginx
+
+- name: Enable NexGrad website
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/nexgrad
+    dest: /etc/nginx/sites-enabled/nexgrad
+    state: link
+  notify: Restart Nginx
+
+- name: Remove default Nginx site
+  ansible.builtin.file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: Restart Nginx
+
+- name: Enable Nginx service
+  ansible.builtin.systemd:
+    name: nginx
+    enabled: true
+    state: started

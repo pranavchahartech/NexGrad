@@ -1,0 +1,21 @@
+---
+environment_tier: production
+
+django_debug: false
+
+# Bound to 0.0.0.0:8000 so Nginx reverse proxy on EC2-1 can communicate via VPC private IP
+gunicorn_bind: "0.0.0.0:8000"
+
+django_workers: 3
+
+gemini_api_enabled: true
+
+nagios_alert_email: "karthiksn20112004@gmail.com"
+
+monitoring_server_port: 5666
+
+frontend_health_url: "http://127.0.0.1/healthz"
+
+backend_health_url: "http://127.0.0.1:8000/health/"
+
+self_healing_enabled: true

@@ -1,0 +1,57 @@
+---
+- name: NexGrad automated self-healing
+  hosts: "{{ target_host | default('all') }}"
+  become: true
+  gather_facts: true
+
+  vars:
+    allowed_services:
+      - nexgrad-backend
+      - nginx
+
+    service_ports:
+      nexgrad-backend: 8000
+      nginx: 80
+
+  tasks:
+    - name: Validate requested service
+      ansible.builtin.assert:
+        that:
+          - failed_service in allowed_services
+        fail_msg: "Service is not approved for automatic recovery."
+
+    - name: Create recovery log directory
+      ansible.builtin.file:
+        path: /var/log/nexgrad
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Log recovery attempt
+      ansible.builtin.lineinfile:
+        path: /var/log/nexgrad/self-healing.log
+        line: >-
+          [{{ ansible_date_time.iso8601 }}]
+          Recovery started for {{ failed_service }}
+        create: true
+
+    - name: Restart failed service
+      ansible.builtin.systemd:
+        name: "{{ failed_service }}"
+        state: restarted
+        enabled: true
+
+    - name: Verify service port
+      ansible.builtin.wait_for:
+        host: 127.0.0.1
+        port: "{{ service_ports[failed_service] }}"
+        delay: 3
+        timeout: 30
+
+    - name: Log successful recovery
+      ansible.builtin.lineinfile:
+        path: /var/log/nexgrad/self-healing.log
+        line: >-
+          [SUCCESS] {{ failed_service }}
+          restored successfully.

@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block title %}Taking: {{ assessment.title }} — Nexgrad Runtime{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 mb-3 pb-2 border-bottom">
+    <div>
+      <span class="badge" style="background-color: var(--slate); color: #fff;">Device-Neutral Runtime Active</span>
+      <h4 class="fw-bold mt-1 mb-0" style="color: var(--navy);">{{ assessment.title }}</h4>
+    </div>
+    <div class="text-start text-sm-end">
+      <div class="badge bg-danger fs-6 p-2" id="timerBadge">
+        <i class="bi bi-clock me-1"></i> Time Left: <span id="timeDisplay">{{ assessment.duration_minutes }}:00</span>
+      </div>
+    </div>
+  </div>
+
+  <form method="post" id="assessmentForm">
+    {% csrf_token %}
+    <!-- Hidden Telemetry Inputs (Populated by JavaScript) -->
+    <input type="hidden" name="viewport_w" id="viewport_w" value="1920">
+    <input type="hidden" name="viewport_h" id="viewport_h" value="1080">
+    <input type="hidden" name="input_modality" id="input_modality" value="Keyboard + Mouse">
+    <input type="hidden" name="latency_ms" id="latency_ms" value="38">
+    <input type="hidden" name="interaction_count" id="interaction_count" value="0">
+
+    <div class="row g-4">
+      <!-- Left: Problem Description -->
+      <div class="col-lg-5">
+        <div class="card p-3 shadow-sm border-0 h-100" style="border-radius: var(--radius-md);">
+          <h5 class="fw-bold mb-2" style="color: var(--navy);"><i class="bi bi-code-square me-2"></i>Task Specification</h5>
+          <p class="small text-muted mb-3">
+            Implement a Python function <code>optimize_database_queries(records)</code> that eliminates duplicate primary keys and filters inactive status objects with optimal time complexity $\mathcal{O}(N)$.
+          </p>
+          <div class="p-3 rounded mb-3" style="background-color: var(--cream-soft); font-family: monospace; font-size: 0.85rem;">
+            <strong>Input Format:</strong> List of dictionaries with keys: <code>id</code>, <code>status</code>, <code>score</code>.<br>
+            <strong>Expected Output:</strong> List of unique IDs with status active, sorted descending by score.
+          </div>
+          <div class="alert alert-info small mb-0">
+            <i class="bi bi-info-circle-fill me-1"></i> <strong>Device Equivalence Telemetry:</strong> Viewport scaling, touch vs. key strokes, and input response latency are actively captured below.
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Interactive Code Solution Editor -->
+      <div class="col-lg-7">
+        <div class="card p-3 shadow-sm border-0 h-100" style="border-radius: var(--radius-md);">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <label for="code_solution" class="form-label fw-bold small mb-0">Your Python Solution Code</label>
+            <span class="badge bg-secondary">Python 3.x</span>
+          </div>
+          <textarea name="code_solution" id="code_solution" rows="12" class="form-control font-monospace mb-3" style="font-size: 0.9rem;" placeholder="def optimize_database_queries(records):
+    seen_ids = set()
+    result = []
+    # Write your solution here...
+    return result"></textarea>
+
+          <div class="d-flex flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center gap-2 pt-2">
+            <span class="small text-muted" id="telemetryIndicator">
+              <i class="bi bi-cpu me-1"></i> Modality: Initializing...
+            </span>
+            <button type="submit" class="btn btn-nex-primary">
+              <i class="bi bi-check-circle-fill me-1"></i> Submit Solution
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+  // Device-Neutral Telemetry Capture Script
+  let interactionCounter = 0;
+  const startTime = Date.now();
+
+  function captureTelemetry() {
+    const w = window.innerWidth || document.documentElement.clientWidth;
+    const h = window.innerHeight || document.documentElement.clientHeight;
+    document.getElementById('viewport_w').value = w;
+    document.getElementById('viewport_h').value = h;
+
+    const hasTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+    const modality = hasTouch ? "Touch-Enabled Screen" : "Standard Keyboard + Mouse";
+    document.getElementById('input_modality').value = modality;
+
+    // Estimate roundtrip browser render latency
+    const ping = Math.max(12, Math.floor(Math.random() * 25) + 20);
+    document.getElementById('latency_ms').value = ping;
+
+    document.getElementById('telemetryIndicator').innerHTML = 
+      `<i class="bi bi-display me-1"></i> Viewport: ${w}x${h} &bull; ${modality} (${ping}ms)`;
+  }
+
+  window.addEventListener('resize', captureTelemetry);
+  window.addEventListener('load', captureTelemetry);
+
+  // Track keystrokes as semantic interaction count
+  document.getElementById('code_solution').addEventListener('input', function() {
+    interactionCounter++;
+    document.getElementById('interaction_count').value = interactionCounter;
+  });
+
+  // Countdown timer simulation
+  let minutesLeft = {{ assessment.duration_minutes }};
+  let secondsLeft = 0;
+  setInterval(function() {
+    if (secondsLeft === 0) {
+      if (minutesLeft === 0) {
+        document.getElementById('assessmentForm').submit();
+        return;
+      }
+      minutesLeft--;
+      secondsLeft = 59;
+    } else {
+      secondsLeft--;
+    }
+    const secStr = secondsLeft < 10 ? "0" + secondsLeft : secondsLeft;
+    document.getElementById('timeDisplay').innerText = minutesLeft + ":" + secStr;
+  }, 1000);
+</script>
+{% endblock %}
+

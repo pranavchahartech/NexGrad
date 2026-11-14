@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+
+{% block title %}Application Tracker — {{ application.role_title }} | Nexgrad{% endblock %}
+
+{% block content %}
+<div class="container py-4 py-md-5">
+  <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-4">
+    <div>
+      <span class="badge" style="background-color: var(--slate); color: #fff;">Application Record #{{ application.id }}</span>
+      <h3 class="fw-bold mt-2 mb-1" style="color: var(--navy);">{{ application.role_title }}</h3>
+      <p class="text-muted small mb-0">{{ application.company_name }} &bull; Applied on {{ application.applied_at|date:"M d, Y" }}</p>
+    </div>
+    <div>
+      <a href="{% url 'applications:my_applications' %}" class="btn btn-sm btn-nex-outline">
+        <i class="bi bi-arrow-left me-1"></i> Back to Applications
+      </a>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <!-- Visual Pipeline Stages -->
+      <div class="card p-3 p-md-4 shadow-sm border-0 mb-4" style="border-radius: var(--radius-md);">
+        <h5 class="fw-bold mb-4" style="color: var(--navy);"><i class="bi bi-diagram-3-fill me-2"></i>Recruitment Pipeline Stage</h5>
+
+        <div class="pipeline-stepper-wrapper">
+          <div class="d-flex justify-content-between text-center position-relative my-3 pipeline-stepper-inner">
+            <div class="position-absolute top-50 start-0 translate-middle-y w-100" style="height: 4px; background-color: var(--border-subtle); z-index: 1;"></div>
+            
+            <div class="position-relative" style="z-index: 2;">
+              <div class="rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background-color: var(--navy); color: #fff; font-size: 0.9rem;">
+                <i class="bi bi-check"></i>
+              </div>
+              <div class="small fw-bold mt-2" style="color: var(--navy);">Applied</div>
+            </div>
+
+            <div class="position-relative" style="z-index: 2;">
+              <div class="rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background-color: {% if application.status != 'APPLIED' %}var(--navy){% else %}#E2E8F0{% endif %}; color: {% if application.status != 'APPLIED' %}#fff{% else %}#64748B{% endif %}; font-size: 0.9rem;">
+                <i class="bi bi-file-earmark-person"></i>
+              </div>
+              <div class="small fw-bold mt-2 text-muted">Screening</div>
+            </div>
+
+            <div class="position-relative" style="z-index: 2;">
+              <div class="rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background-color: {% if application.status == 'SHORTLISTED' or application.status == 'ASSESSMENT' or application.status == 'INTERVIEW' or application.status == 'SELECTED' %}var(--navy){% else %}#E2E8F0{% endif %}; color: {% if application.status == 'SHORTLISTED' or application.status == 'ASSESSMENT' or application.status == 'INTERVIEW' or application.status == 'SELECTED' %}#fff{% else %}#64748B{% endif %}; font-size: 0.9rem;">
+                <i class="bi bi-laptop"></i>
+              </div>
+              <div class="small fw-bold mt-2 text-muted">Assessment</div>
+            </div>
+
+            <div class="position-relative" style="z-index: 2;">
+              <div class="rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background-color: {% if application.status == 'INTERVIEW' or application.status == 'SELECTED' %}var(--navy){% else %}#E2E8F0{% endif %}; color: {% if application.status == 'INTERVIEW' or application.status == 'SELECTED' %}#fff{% else %}#64748B{% endif %}; font-size: 0.9rem;">
+                <i class="bi bi-camera-video"></i>
+              </div>
+              <div class="small fw-bold mt-2 text-muted">Interview</div>
+            </div>
+
+            <div class="position-relative" style="z-index: 2;">
+              <div class="rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background-color: {% if application.status == 'SELECTED' %}#10B981{% elif application.status == 'REJECTED' %}#EF4444{% else %}#E2E8F0{% endif %}; color: #fff; font-size: 0.9rem;">
+                <i class="bi {% if application.status == 'SELECTED' %}bi-trophy-fill{% elif application.status == 'REJECTED' %}bi-x-lg{% else %}bi-flag{% endif %}"></i>
+              </div>
+              <div class="small fw-bold mt-2 text-muted">Decision</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3 mt-4 rounded" style="background-color: var(--cream-soft); border-left: 4px solid var(--slate);">
+          <strong>Current Status:</strong> <span class="badge" style="background-color: var(--navy); color: #fff;">{{ application.get_status_display }}</span>
+          <p class="small text-muted mb-0 mt-1">Status was updated on {{ application.updated_at|date:"M d, Y, h:i A" }}.</p>
+        </div>
+      </div>
+
+      <!-- Status Audit History Logs -->
+      <div class="card p-4 shadow-sm border-0" style="border-radius: var(--radius-md);">
+        <h5 class="fw-bold mb-3" style="color: var(--navy);"><i class="bi bi-clock-history me-2"></i>Stage Transition History</h5>
+        {% if history %}
+          <ul class="list-group list-group-flush small">
+            {% for h in history %}
+              <li class="list-group-item px-0 py-2">
+                <div class="d-flex justify-content-between">
+                  <strong>Transition to {{ h.to_status }}</strong>
+                  <span class="text-muted">{{ h.timestamp|date:"M d, Y h:i A" }}</span>
+                </div>
+                <div class="text-muted">{{ h.notes|default:"Status modified by recruitment team." }}</div>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-muted small mb-0">Initial application received and registered.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Right Column: Challenges & Scheduled Interviews -->
+    <div class="col-lg-4">
+      <!-- Assigned Technical Assessments / Challenges -->
+      {% if application.challenge_assignments.exists %}
+        <div class="card p-4 shadow-sm border-0 mb-4" style="border-radius: var(--radius-md); border-left: 4px solid var(--navy) !important;">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0" style="color: var(--navy);">
+              <i class="bi bi-shield-lock-fill me-2 text-primary"></i>Private Challenge
+            </h5>
+            <span class="badge" style="background-color: var(--teal); color: var(--navy);">Recruiter Assigned</span>
+          </div>
+
+          {% for assign in application.challenge_assignments.all %}
+            <div class="p-3 border rounded mb-3" style="background-color: #F0F6F9;">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <h6 class="fw-bold mb-0" style="color: var(--navy);">{{ assign.challenge.title }}</h6>
+                <span class="badge" style="background-color: var(--navy); color: #fff;">{{ assign.get_status_display }}</span>
+              </div>
+              <p class="small text-muted mb-2">{{ assign.challenge.description|truncatewords:15 }}</p>
+              <div class="small text-muted mb-3">
+                <i class="bi bi-clock-history me-1"></i>Deadline: <strong>{{ assign.deadline|date:"M d, Y" }}</strong>
+              </div>
+
+              {% if assign.status == 'EVALUATED' %}
+                <a href="{% url 'challenges:student_challenge_feedback' assign.id %}" class="btn btn-sm btn-outline-success w-100 justify-content-center">
+                  <i class="bi bi-clipboard-check me-1"></i> View Evaluation &amp; Score
+                </a>
+              {% elif assign.status == 'SUBMITTED' or assign.status == 'UNDER_REVIEW' %}
+                <a href="{% url 'challenges:student_challenge_detail' assign.id %}" class="btn btn-sm btn-outline-primary w-100 justify-content-center">
+                  <i class="bi bi-eye me-1"></i> View Submission
+                </a>
+              {% else %}
+                <a href="{% url 'challenges:student_challenge_detail' assign.id %}" class="btn btn-sm btn-nex-primary w-100 justify-content-center">
+                  <i class="bi bi-play-circle-fill me-1"></i> Start Challenge
+                </a>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <div class="card p-4 shadow-sm border-0" style="border-radius: var(--radius-md);">
+        <h5 class="fw-bold mb-3" style="color: var(--navy);"><i class="bi bi-calendar2-check me-2"></i>Interviews</h5>
+        {% if interviews %}
+          {% for inv in interviews %}
+            <div class="p-3 border rounded mb-3" style="background-color: var(--cream-soft);">
+              <h6 class="fw-bold mb-1" style="color: var(--navy);">{{ inv.round_name }}</h6>
+              <div class="small text-muted mb-2"><i class="bi bi-clock me-1"></i>{{ inv.scheduled_time|date:"M d, Y at h:i A" }}</div>
+              <a href="{{ inv.meeting_link }}" target="_blank" class="btn btn-sm btn-nex-primary w-100 justify-content-center">
+                <i class="bi bi-box-arrow-up-right me-1"></i> Join Video Room
+              </a>
+            </div>
+          {% endfor %}
+        {% else %}
+          <p class="text-muted small mb-0">No interview rounds scheduled yet. You will receive an alert once your profile is shortlisted.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

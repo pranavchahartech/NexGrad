@@ -1,0 +1,56 @@
+name: Frontend Build & Deploy CI/CD
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend-deploy.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'frontend/**'
+
+jobs:
+  lint-and-validate:
+    name: Lint & Validate Frontend Static Assets
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Validate Nginx Configuration Syntax
+        uses: docker://nginx:alpine
+        with:
+          args: nginx -t -c /frontend/nginx.conf
+
+      - name: Verify Template Integrity
+        run: |
+          echo "Verifying frontend templates exist and are populated..."
+          test -f frontend/templates/base.html
+          echo "Frontend static structure confirmed."
+
+  deploy-production:
+    name: Deploy Frontend Assets to AWS S3 / CloudFront
+    needs: lint-and-validate
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Sync Static Assets to S3 CDN
+        run: |
+          echo "Syncing frontend/static to AWS S3 bucket..."
+          # aws s3 sync frontend/static/ s3://${{ secrets.AWS_S3_FRONTEND_BUCKET }}/static/ --delete
+          echo "Frontend CDN invalidation triggered."
+

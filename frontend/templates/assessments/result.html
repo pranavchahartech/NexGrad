@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}Assessment Result — Nexgrad{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow-sm border-0 p-4" style="border-radius: var(--radius-md);">
+        <div class="text-center mb-4">
+          <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 72px; height: 72px; background-color: {% if attempt.is_passed %}#10B981{% else %}#EF4444{% endif %}; color: #fff; font-size: 2rem;">
+            <i class="bi {% if attempt.is_passed %}bi-check-lg{% else %}bi-x-lg{% endif %}"></i>
+          </div>
+          <h3 class="fw-bold mb-1" style="color: var(--navy);">
+            {% if attempt.is_passed %}Assessment Passed{% else %}Needs Practice{% endif %}
+          </h3>
+          <p class="text-muted small">{{ attempt.assessment.title }} &bull; Completed on {{ attempt.completed_at|date:"M d, Y h:i A" }}</p>
+          <div class="display-5 fw-bold my-2" style="color: {% if attempt.is_passed %}var(--navy){% else %}#EF4444{% endif %};">
+            {{ attempt.score }}%
+          </div>
+          <span class="badge" style="background-color: var(--sage); color: var(--navy);">Passing Threshold: {{ attempt.assessment.passing_marks }}%</span>
+        </div>
+
+        <!-- Research Telemetry Breakdown Card -->
+        {% if attempt.telemetry %}
+          <div class="p-3 my-3 rounded" style="background-color: var(--cream-soft); border: 1px solid var(--border-subtle);">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h6 class="fw-bold mb-0" style="color: var(--navy);"><i class="bi bi-cpu-fill me-2"></i>Device-Neutral Measurement Telemetry</h6>
+              <span class="badge" style="background-color: var(--slate); color: #fff;">Telemetry Logged</span>
+            </div>
+            <div class="row g-2 small text-muted">
+              <div class="col-sm-6"><strong>Viewport Resolution:</strong> {{ attempt.telemetry.viewport_width }} x {{ attempt.telemetry.viewport_height }} px</div>
+              <div class="col-sm-6"><strong>Interaction Modality:</strong> {{ attempt.telemetry.input_modality }}</div>
+              <div class="col-sm-6"><strong>Interaction Keystroke Count:</strong> {{ attempt.telemetry.interaction_count }} events</div>
+              <div class="col-sm-6"><strong>Browser Render Latency:</strong> {{ attempt.telemetry.round_trip_latency_ms }} ms</div>
+            </div>
+            <div class="small text-muted mt-2 border-top pt-2">
+              <em>This telemetry verifies runtime execution conditions for cross-device measurement equivalence research.</em>
+            </div>
+          </div>
+        {% endif %}
+
+        <div class="d-flex justify-content-between align-items-center pt-3 border-top mt-4">
+          <a href="{% url 'assessments:list' %}" class="btn btn-nex-outline">Browse Other Tests</a>
+          <a href="{% url 'students:dashboard' %}" class="btn btn-nex-primary">Return to Student Workspace</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

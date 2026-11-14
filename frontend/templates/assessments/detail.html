@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ assessment.title }} — Nexgrad Assessment{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow-sm border-0 p-4" style="border-radius: var(--radius-md);">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span class="badge" style="background-color: var(--teal-light); color: var(--navy);">{{ assessment.category }}</span>
+          <span class="badge" style="background-color: var(--sage); color: var(--navy);">{{ assessment.get_difficulty_display }}</span>
+        </div>
+
+        <h3 class="fw-bold mb-3" style="color: var(--navy);">{{ assessment.title }}</h3>
+        <p class="text-muted">{{ assessment.description }}</p>
+
+        <div class="p-3 my-4 rounded" style="background-color: var(--cream-soft); border: 1px solid var(--border-subtle);">
+          <div class="row text-center g-2">
+            <div class="col-4">
+              <small class="text-muted d-block">Time Limit</small>
+              <strong style="color: var(--navy);">{{ assessment.duration_minutes }} Minutes</strong>
+            </div>
+            <div class="col-4" style="border-left: 1px solid var(--border-subtle); border-right: 1px solid var(--border-subtle);">
+              <small class="text-muted d-block">Passing Score</small>
+              <strong style="color: var(--navy);">{{ assessment.passing_marks }}%</strong>
+            </div>
+            <div class="col-4">
+              <small class="text-muted d-block">Runtime Mode</small>
+              <strong style="color: var(--slate);">Device-Neutral</strong>
+            </div>
+          </div>
+        </div>
+
+        <h5 class="fw-bold mb-2" style="color: var(--navy);"><i class="bi bi-display me-2"></i>Device Compatibility Guarantee</h5>
+        <p class="small text-muted mb-4">
+          This assessment uses Nexgrad's experimental Device-Neutral Assessment Runtime. Telemetry metrics (screen dimensions, input modality, latency) are recorded solely for measurement equivalence research to ensure fair evaluation across laptops, desktop workstations, and mobile devices.
+        </p>
+
+        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+          <a href="{% url 'assessments:list' %}" class="btn btn-nex-outline">Back to Assessments</a>
+          {% if user.is_authenticated and user.is_student %}
+            <a href="{% url 'assessments:take' assessment.id %}" class="btn btn-nex-primary">
+              <i class="bi bi-play-circle-fill me-1"></i> Start Assessment
+            </a>
+          {% elif user.is_authenticated %}
+            <span class="text-muted small">Logged in as {{ user.get_role_display }}. Students only.</span>
+          {% else %}
+            <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn btn-nex-primary">
+              Sign In to Take Assessment
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

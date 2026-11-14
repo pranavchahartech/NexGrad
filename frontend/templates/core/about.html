@@ -1,0 +1,780 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}About Us — {{ BRAND_NAME }} The Engineering Career Intelligence Platform{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* CareerForge-inspired modern palette and typography */
+  :root {
+    --cf-font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --cf-primary: #107574;
+    --cf-primary-dark: #0d5d5c;
+    --cf-primary-light: #f0fdfb;
+    --cf-primary-border: #cbece7;
+    --cf-text-main: #191919;
+    --cf-text-muted: #5c5d5e;
+    --cf-surface-light: #f9f9fa;
+    --cf-border: #e6e6e7;
+    --cf-card-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  }
+
+  .about-page-wrapper {
+    font-family: var(--cf-font);
+    color: var(--cf-text-main);
+  }
+
+  /* Hero Section */
+  .cf-hero-section {
+    background: linear-gradient(180deg, #f0fdfb 0%, #ffffff 100%);
+    padding: 80px 0 60px 0;
+    border-bottom: 1px solid var(--cf-primary-border);
+  }
+
+  .cf-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    background-color: #ffffff;
+    border: 1px solid var(--cf-primary-border);
+    color: var(--cf-primary);
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 6px rgba(16, 117, 116, 0.06);
+  }
+
+  .cf-hero-title {
+    font-size: clamp(2.2rem, 4vw, 3.2rem);
+    font-weight: 800;
+    color: var(--navy);
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+    margin-bottom: 24px;
+  }
+
+  .cf-hero-subtitle {
+    font-size: 1.15rem;
+    color: var(--cf-text-muted);
+    line-height: 1.7;
+    max-width: 780px;
+    margin: 0 auto 36px auto;
+  }
+
+  /* Stat Strip */
+  .cf-stat-card {
+    background: #ffffff;
+    border: 1px solid var(--cf-border);
+    border-radius: 12px;
+    padding: 24px 20px;
+    text-align: center;
+    box-shadow: var(--cf-card-shadow);
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+
+  .cf-stat-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--cf-primary);
+  }
+
+  .cf-stat-value {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--cf-primary);
+    line-height: 1;
+    margin-bottom: 8px;
+    font-feature-settings: "tnum";
+  }
+
+  .cf-stat-label {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--cf-text-muted);
+    margin-bottom: 0;
+  }
+
+  /* Mission Section */
+  .cf-section {
+    padding: 80px 0;
+  }
+
+  .cf-section-light {
+    background-color: var(--cf-surface-light);
+  }
+
+  .cf-section-title {
+    font-size: 2.1rem;
+    font-weight: 800;
+    color: var(--navy);
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+  }
+
+  .cf-section-lead {
+    color: var(--cf-text-muted);
+    font-size: 1.05rem;
+    line-height: 1.7;
+  }
+
+  /* Feature / Pillar Card */
+  .cf-pillar-card {
+    background: #ffffff;
+    border: 1px solid var(--cf-border);
+    border-radius: 14px;
+    padding: 32px 24px;
+    height: 100%;
+    box-shadow: var(--cf-card-shadow);
+    transition: all 0.2s ease;
+  }
+
+  .cf-pillar-card:hover {
+    border-color: var(--cf-primary);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(16, 117, 116, 0.08);
+  }
+
+  .cf-pillar-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    background-color: var(--cf-primary-light);
+    color: var(--cf-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    margin-bottom: 20px;
+  }
+
+  /* ==========================================================================
+     FOUNDERS SECTION STYLING (TWO IMAGE SPACES)
+     ========================================================================== */
+  .founder-card {
+    background: #ffffff;
+    border: 1px solid var(--cf-border);
+    border-radius: 16px;
+    padding: 28px;
+    height: 100%;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .founder-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--cf-primary);
+    box-shadow: 0 16px 36px rgba(16, 117, 116, 0.1);
+  }
+
+  .founder-img-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    max-height: 340px;
+    background-color: var(--cf-surface-light);
+    border: 1px solid rgba(8, 43, 76, 0.12);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(8, 43, 76, 0.06);
+  }
+
+  .founder-img-wrapper picture {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .founder-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+  }
+
+  .founder-card:hover .founder-img-wrapper img {
+    transform: scale(1.02);
+  }
+
+  .founder-placeholder-overlay {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(4px);
+    border: 1px solid var(--cf-primary-border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--cf-primary);
+  }
+
+  .founder-name {
+    font-size: 1.45rem;
+    font-weight: 800;
+    color: var(--navy);
+    margin-bottom: 4px;
+  }
+
+  .founder-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--cf-primary);
+    margin-bottom: 14px;
+  }
+
+  .founder-bio {
+    font-size: 0.92rem;
+    color: var(--cf-text-muted);
+    line-height: 1.65;
+    margin-bottom: 20px;
+    flex-grow: 1;
+  }
+
+  .founder-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 20px;
+  }
+
+  .founder-tag {
+    font-size: 0.76rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background-color: var(--cf-primary-light);
+    color: var(--cf-primary);
+  }
+
+  .founder-socials {
+    display: flex;
+    gap: 10px;
+    padding-top: 16px;
+    border-top: 1px solid var(--cf-border);
+  }
+
+  .founder-social-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid var(--cf-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--cf-text-muted);
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .founder-social-btn:hover {
+    background-color: var(--cf-primary);
+    border-color: var(--cf-primary);
+    color: #ffffff;
+  }
+
+  /* Dual Audience Section */
+  .audience-card {
+    border-radius: 16px;
+    padding: 36px 30px;
+    height: 100%;
+  }
+
+  .audience-card-students {
+    background-color: #ffffff;
+    border: 1px solid var(--cf-border);
+  }
+
+  .audience-card-recruiters {
+    background-color: var(--navy);
+    color: #ffffff;
+  }
+
+  .audience-card-recruiters h3,
+  .audience-card-recruiters h5 {
+    color: #ffffff;
+  }
+
+  .audience-card-recruiters .text-muted {
+    color: #c0cdd8 !important;
+  }
+
+  /* CTA Section */
+  .cf-cta-banner {
+    background: linear-gradient(135deg, var(--navy) 0%, #107574 100%);
+    border-radius: 20px;
+    padding: 60px 40px;
+    color: #ffffff;
+    box-shadow: 0 16px 40px rgba(8, 43, 76, 0.15);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="about-page-wrapper">
+
+  <!-- ======================================================================
+       HERO SECTION: Modern SaaS Brand Statement
+       ====================================================================== -->
+  <section class="cf-hero-section text-center">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-10">
+          <div class="cf-eyebrow">
+            <i class="bi bi-compass-fill"></i>
+            <span>About Nexgrad &amp; Career Intelligence</span>
+          </div>
+          
+          <h1 class="cf-hero-title">
+            Empowering the Next Generation of Engineers &amp; Modern Tech Teams
+          </h1>
+          
+          <p class="cf-hero-subtitle">
+            Nexgrad was built to eliminate the gap between university engineering education and contemporary technical hiring. We replace passive resume screening with verified capability, transparent assessments, and explainable career matching.
+          </p>
+
+          <!-- 4 High-Impact Metrics Strip -->
+          <div class="row g-3 justify-content-center mt-2">
+            <div class="col-6 col-md-3">
+              <div class="cf-stat-card">
+                <div class="cf-stat-value">10,000+</div>
+                <div class="cf-stat-label">Engineering Candidates</div>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="cf-stat-card">
+                <div class="cf-stat-value">500+</div>
+                <div class="cf-stat-label">Hiring Partners</div>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="cf-stat-card">
+                <div class="cf-stat-value">94%</div>
+                <div class="cf-stat-label">Placement Match Accuracy</div>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="cf-stat-card">
+                <div class="cf-stat-value">100%</div>
+                <div class="cf-stat-label">Verified Skill Evidence</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ======================================================================
+       OUR MISSION & THE PROBLEM WE SOLVE
+       ====================================================================== -->
+  <section class="cf-section">
+    <div class="container">
+      <div class="row g-5 align-items-center">
+        <div class="col-lg-6">
+          <div class="cf-eyebrow" style="background-color: var(--cf-primary-light);">
+            <i class="bi bi-lightbulb-fill"></i> Our Purpose
+          </div>
+          <h2 class="cf-section-title">Bridging the Gap Between Learning and Hiring</h2>
+          <p class="cf-section-lead mb-4">
+            Traditional campus recruitment is burdened with inefficiencies. Students spend months mass-applying with static PDF resumes, while recruiters are overwhelmed with thousands of unverified applications with no reliable signal on real-world engineering capability.
+          </p>
+          <p class="text-muted mb-4">
+            Nexgrad flips the paradigm. Instead of relying on keyword heuristics and prestige bias, our platform evaluates candidates through <strong>demonstrated code repositories, device-neutral technical tests, and explainable match scoring</strong> that highlights exact requirement alignment.
+          </p>
+          
+          <div class="d-flex flex-column gap-3">
+            <div class="d-flex align-items-start gap-3">
+              <div class="cf-pillar-icon mb-0" style="width: 38px; height: 38px; font-size: 1.1rem; flex-shrink: 0;">
+                <i class="bi bi-check2-circle"></i>
+              </div>
+              <div>
+                <h6 class="fw-bold mb-1" style="color: var(--navy);">Capability-First Evaluation</h6>
+                <p class="small text-muted mb-0">Prioritizing verified project execution and problem-solving over generic resume bullet points.</p>
+              </div>
+            </div>
+
+            <div class="d-flex align-items-start gap-3">
+              <div class="cf-pillar-icon mb-0" style="width: 38px; height: 38px; font-size: 1.1rem; flex-shrink: 0;">
+                <i class="bi bi-cpu"></i>
+              </div>
+              <div>
+                <h6 class="fw-bold mb-1" style="color: var(--navy);">Explainable Career Intelligence</h6>
+                <p class="small text-muted mb-0">Transparent multi-factor scores that clearly explain candidate fit and provide structured skill progression paths.</p>
+              </div>
+            </div>
+
+            <div class="d-flex align-items-start gap-3">
+              <div class="cf-pillar-icon mb-0" style="width: 38px; height: 38px; font-size: 1.1rem; flex-shrink: 0;">
+                <i class="bi bi-shield-check"></i>
+              </div>
+              <div>
+                <h6 class="fw-bold mb-1" style="color: var(--navy);">Equitable Testing Standards</h6>
+                <p class="small text-muted mb-0">Device-neutral test runtimes that level the playing field regardless of hardware specification.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="p-4 p-md-5 rounded-4 border" style="background: linear-gradient(145deg, #ffffff 0%, #f9f9fa 100%); box-shadow: 0 12px 32px rgba(8, 43, 76, 0.06);">
+            <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+              <div>
+                <span class="badge" style="background-color: var(--cf-primary-light); color: var(--cf-primary);">Comparison Matrix</span>
+                <h5 class="fw-bold mb-0 mt-2" style="color: var(--navy);">Legacy Job Boards vs. Nexgrad</h5>
+              </div>
+              <div class="cf-pillar-icon mb-0" style="background: var(--navy); color: #fff;">
+                <i class="bi bi-arrow-left-right"></i>
+              </div>
+            </div>
+
+            <div class="d-flex flex-column gap-3">
+              <div class="p-3 rounded-3 bg-white border">
+                <div class="d-flex justify-content-between small fw-bold mb-1">
+                  <span class="text-danger"><i class="bi bi-x-circle me-1"></i>Static Resumes</span>
+                  <span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Verified Git Repositories</span>
+                </div>
+                <p class="small text-muted mb-0">Unverified self-reported skills are replaced with live repository metrics and code evidence.</p>
+              </div>
+
+              <div class="p-3 rounded-3 bg-white border">
+                <div class="d-flex justify-content-between small fw-bold mb-1">
+                  <span class="text-danger"><i class="bi bi-x-circle me-1"></i>Black-Box ATS Filtering</span>
+                  <span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Explainable Multi-Factor Match</span>
+                </div>
+                <p class="small text-muted mb-0">Candidates understand exactly why they match or what skills to acquire to become eligible.</p>
+              </div>
+
+              <div class="p-3 rounded-3 bg-white border">
+                <div class="d-flex justify-content-between small fw-bold mb-1">
+                  <span class="text-danger"><i class="bi bi-x-circle me-1"></i>Fragmented Placement</span>
+                  <span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Unified Ecosystem</span>
+                </div>
+                <p class="small text-muted mb-0">Students, university career cells, and company talent teams collaborate on one synced pipeline.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ======================================================================
+       CORE VALUES & PILLARS
+       ====================================================================== -->
+  <section class="cf-section cf-section-light">
+    <div class="container text-center">
+      <div class="cf-eyebrow" style="background-color: #ffffff;">
+        <i class="bi bi-star-fill"></i> What Drives Us
+      </div>
+      <h2 class="cf-section-title">Our Foundational Principles</h2>
+      <p class="cf-section-lead mb-5" style="max-width: 650px; margin-left: auto; margin-right: auto;">
+        We design every feature around engineering transparency, assessment integrity, and long-term career growth.
+      </p>
+
+      <div class="row g-4 text-start">
+        <div class="col-md-6 col-lg-3">
+          <div class="cf-pillar-card">
+            <div class="cf-pillar-icon">
+              <i class="bi bi-code-slash"></i>
+            </div>
+            <h5 class="fw-bold" style="color: var(--navy);">Merit & Capability</h5>
+            <p class="small text-muted mb-0">
+              We champion practical problem-solving. Working code, architected projects, and verified capabilities speak louder than credential padding.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+          <div class="cf-pillar-card">
+            <div class="cf-pillar-icon">
+              <i class="bi bi-eye"></i>
+            </div>
+            <h5 class="fw-bold" style="color: var(--navy);">Radical Transparency</h5>
+            <p class="small text-muted mb-0">
+              No black-box rejection emails. Candidates see their detailed match breakdown and receive actionable guidance on bridging requirement gaps.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+          <div class="cf-pillar-card">
+            <div class="cf-pillar-icon">
+              <i class="bi bi-phone-landscape"></i>
+            </div>
+            <h5 class="fw-bold" style="color: var(--navy);">Equitable Access</h5>
+            <p class="small text-muted mb-0">
+              Talent is universal. Our device-neutral assessment technology ensures consistent, bias-free technical testing across varied hardware devices.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+          <div class="cf-pillar-card">
+            <div class="cf-pillar-icon">
+              <i class="bi bi-diagram-3"></i>
+            </div>
+            <h5 class="fw-bold" style="color: var(--navy);">Ecosystem Synergy</h5>
+            <p class="small text-muted mb-0">
+              Connecting university placement offices, engineering departments, and hiring recruiters to build sustainable campus-to-corporate talent pipelines.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ======================================================================
+       LEADERSHIP / MEET THE FOUNDERS SECTION
+       (LEAVING TWO PROMINENT IMAGE SPACES FOR FOUNDERS)
+       ====================================================================== -->
+  <section class="cf-section" id="founders">
+    <div class="container">
+      <div class="text-center mb-5">
+        <div class="cf-eyebrow" style="background-color: var(--cf-primary-light);">
+          <i class="bi bi-people-fill"></i> Executive Leadership
+        </div>
+        <h2 class="cf-section-title">Meet the Founders</h2>
+        <p class="cf-section-lead mx-auto" style="max-width: 680px;">
+          The engineers and visionaries behind Nexgrad, dedicated to transforming technical hiring into a transparent, merit-first ecosystem.
+        </p>
+      </div>
+
+      <div class="row g-4 justify-content-center">
+
+        <!-- ================================================================
+             FOUNDER 1 CARD
+             ================================================================ -->
+        <div class="col-md-6 col-lg-5">
+          <div class="founder-card">
+            
+            <!-- ============================================================
+                 FOUNDER 1 IMAGE SPACE:
+                 Replace the src below with your founder image:
+                 e.g. src="{% static 'images/founders/founder1.jpg' %}"
+                 ============================================================ -->
+            <div class="founder-img-wrapper">
+              <picture>
+                <source srcset="{% static 'images/founder_placeholder_1.png' %}?v=2" type="image/png">
+                <source srcset="{% static 'images/founder_placeholder_1.svg' %}?v=2" type="image/svg+xml">
+                <img 
+                  src="{% static 'images/founder_placeholder_1.png' %}?v=2" 
+                  alt="Karthik S N - Chief Executive Officer"
+                  id="founder1Image"
+                  onerror="this.onerror=null; this.src='{% static 'images/founder_placeholder_1.svg' %}?v=2';"
+                >
+              </picture>
+            </div>
+
+            <!-- Founder 1 Information -->
+            <h3 class="founder-name">Karthik S N</h3>            
+            <p class="founder-bio">
+              Drives platform strategy, university alliances, and corporate recruiter partnerships. With a background in software engineering and education technology, he founded Nexgrad to ensure that early-career developers are evaluated on their true technical potential rather than paper credentials.
+            </p>
+
+            <div class="founder-tags">
+              <span class="founder-tag"><i class="bi bi-stars me-1"></i>Product Strategy</span>
+              <span class="founder-tag"><i class="bi bi-building me-1"></i>University Alliances</span>
+              <span class="founder-tag"><i class="bi bi-graph-up-arrow me-1"></i>Talent Intelligence</span>
+            </div>
+
+            <div class="founder-socials">
+              <a href="https://linkedin.com" target="_blank" rel="noopener" class="founder-social-btn" title="LinkedIn Profile">
+                <i class="bi bi-linkedin"></i>
+              </a>
+              <a href="https://github.com" target="_blank" rel="noopener" class="founder-social-btn" title="GitHub Profile">
+                <i class="bi bi-github"></i>
+              </a>
+              <a href="https://x.com" target="_blank" rel="noopener" class="founder-social-btn" title="Twitter / X Profile">
+                <i class="bi bi-twitter-x"></i>
+              </a>
+              <a href="mailto:founder1@nexgrad.com" class="founder-social-btn" title="Email Founder">
+                <i class="bi bi-envelope-fill"></i>
+              </a>
+            </div>
+
+          </div>
+        </div>
+
+
+        <!-- ================================================================
+             FOUNDER 2 CARD
+             ================================================================ -->
+        <div class="col-md-6 col-lg-5">
+          <div class="founder-card">
+
+            <!-- ============================================================
+                 FOUNDER 2 IMAGE SPACE:
+                 Replace the src below with your founder image:
+                 e.g. src="{% static 'images/founders/founder2.jpg' %}"
+                 ============================================================ -->
+            <div class="founder-img-wrapper">
+              <picture>
+                <source srcset="{% static 'images/founder_placeholder_2.png' %}?v=2" type="image/png">
+                <source srcset="{% static 'images/founder_placeholder_2.svg' %}?v=2" type="image/svg+xml">
+                <img 
+                  src="{% static 'images/founder_placeholder_2.png' %}?v=2" 
+                  alt="S Sanjay - Chief Technology Officer"
+                  id="founder2Image"
+                  onerror="this.onerror=null; this.src='{% static 'images/founder_placeholder_2.svg' %}?v=2';"
+                >
+              </picture>
+            </div>
+
+            <!-- Founder 2 Information -->
+            <h3 class="founder-name">S Sanjay</h3>
+            
+            <p class="founder-bio">
+              Architects Nexgrad’s explainable matching engine, distributed assessment runtimes, and telemetry analytics. Passionate about machine learning equity and scalable web architectures, she leads the engineering team building reliable, low-latency infrastructure for cross-device evaluation.
+            </p>
+
+            <div class="founder-tags">
+              <span class="founder-tag"><i class="bi bi-cpu me-1"></i>System Architecture</span>
+              <span class="founder-tag"><i class="bi bi-diagram-2 me-1"></i>Explainable AI</span>
+              <span class="founder-tag"><i class="bi bi-cloud-check me-1"></i>Distributed Systems</span>
+            </div>
+
+            <div class="founder-socials">
+              <a href="https://linkedin.com" target="_blank" rel="noopener" class="founder-social-btn" title="LinkedIn Profile">
+                <i class="bi bi-linkedin"></i>
+              </a>
+              <a href="https://github.com" target="_blank" rel="noopener" class="founder-social-btn" title="GitHub Profile">
+                <i class="bi bi-github"></i>
+              </a>
+              <a href="https://x.com" target="_blank" rel="noopener" class="founder-social-btn" title="Twitter / X Profile">
+                <i class="bi bi-twitter-x"></i>
+              </a>
+              <a href="mailto:founder2@nexgrad.com" class="founder-social-btn" title="Email Founder">
+                <i class="bi bi-envelope-fill"></i>
+              </a>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ======================================================================
+       WHO WE SERVE: STUDENTS & RECRUITERS
+       ====================================================================== -->
+  <section class="cf-section cf-section-light">
+    <div class="container">
+      <div class="text-center mb-5">
+        <div class="cf-eyebrow" style="background-color: #ffffff;">
+          <i class="bi bi-briefcase-fill"></i> Built for Both Sides
+        </div>
+        <h2 class="cf-section-title">Designed for Engineering Students &amp; Tech Employers</h2>
+      </div>
+
+      <div class="row g-4">
+        <!-- For Students -->
+        <div class="col-lg-6">
+          <div class="audience-card audience-card-students shadow-sm">
+            <div class="d-flex align-items-center gap-3 mb-3">
+              <div class="cf-pillar-icon mb-0" style="background-color: var(--cf-primary-light); color: var(--cf-primary);">
+                <i class="bi bi-mortarboard-fill"></i>
+              </div>
+              <div>
+                <h4 class="fw-bold mb-0" style="color: var(--navy);">For Engineering Students</h4>
+                <p class="small text-muted mb-0">Launch your career with verified proof of work</p>
+              </div>
+            </div>
+            
+            <ul class="list-unstyled d-flex flex-column gap-3 mt-4 mb-4">
+              <li class="d-flex align-items-start gap-2">
+                <i class="bi bi-check-circle-fill text-success mt-1"></i>
+                <span class="small"><strong>Showcase Live Repositories:</strong> Link GitHub projects, technical architecture diagrams, and deployed applications.</span>
+              </li>
+              <li class="d-flex align-items-start gap-2">
+                <i class="bi bi-check-circle-fill text-success mt-1"></i>
+                <span class="small"><strong>Take Calibrated Assessments:</strong> Earn verified badges in Python, Algorithms, and Cloud Systems.</span>
+              </li>
+              <li class="d-flex align-items-start gap-2">
+                <i class="bi bi-check-circle-fill text-success mt-1"></i>
+                <span class="small"><strong>Transparent Feedback:</strong> Understand exact requirement gaps and view structured role progression roadmaps.</span>
+              </li>
+            </ul>
+
+            <a href="{% url 'accounts:register_student' %}" class="btn btn-nex-primary">Create Student Profile</a>
+          </div>
+        </div>
+
+        <!-- For Recruiters -->
+        <div class="col-lg-6">
+          <div class="audience-card audience-card-recruiters shadow-sm">
+            <div class="d-flex align-items-center gap-3 mb-3">
+              <div class="cf-pillar-icon mb-0" style="background-color: rgba(255, 255, 255, 0.15); color: #ffffff;">
+                <i class="bi bi-building"></i>
+              </div>
+              <div>
+                <h4 class="fw-bold mb-0 text-white">For Companies &amp; Recruiters</h4>
+                <p class="small text-muted mb-0" style="color: #c0cdd8;">Hire pre-screened technical talent without the resume noise</p>
+              </div>
+            </div>
+
+            <ul class="list-unstyled d-flex flex-column gap-3 mt-4 mb-4">
+              <li class="d-flex align-items-start gap-2">
+                <i class="bi bi-check-circle-fill text-info mt-1"></i>
+                <span class="small"><strong>Reduce Screening Time by 70%:</strong> Filter candidates based on objective assessment scores and verified project commits.</span>
+              </li>
+              <li class="d-flex align-items-start gap-2">
+                <i class="bi bi-check-circle-fill text-info mt-1"></i>
+                <span class="small"><strong>Explainable Candidate Scores:</strong> View granular match breakdowns across skills, projects, and department requirements.</span>
+              </li>
+              <li class="d-flex align-items-start gap-2">
+                <i class="bi bi-check-circle-fill text-info mt-1"></i>
+                <span class="small"><strong>Seamless Pipeline Management:</strong> Review, shortlist, and invite candidates directly through the recruiter dashboard.</span>
+              </li>
+            </ul>
+
+            <a href="{% url 'accounts:register_recruiter' %}" class="btn btn-light fw-bold" style="color: var(--navy);">Register as Recruiter</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ======================================================================
+       CALL TO ACTION BANNER
+       ====================================================================== -->
+  <section class="container py-5">
+    <div class="cf-cta-banner text-center">
+      <h2 class="fw-bold mb-3">Ready to Experience Modern Career Intelligence?</h2>
+      <p class="mb-4 mx-auto" style="max-width: 650px; color: #e3eae8; font-size: 1.05rem;">
+        Whether you are an engineering student preparing for your first role or a recruiter seeking validated engineering talent, Nexgrad provides the platform to succeed.
+      </p>
+      <div class="d-flex flex-wrap justify-content-center gap-3">
+        <a href="{% url 'jobs:list' %}" class="btn btn-light btn-lg px-4 fw-bold" style="color: var(--navy);">
+          <i class="bi bi-search me-2"></i>Explore Opportunities
+        </a>
+        <a href="{% url 'core:for_recruiters' %}" class="btn btn-outline-light btn-lg px-4">
+          <i class="bi bi-briefcase me-2"></i>Recruitment Solutions
+        </a>
+      </div>
+    </div>
+  </section>
+
+</div>
+{% endblock %}

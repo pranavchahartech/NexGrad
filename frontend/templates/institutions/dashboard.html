@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Institution & Placement Dashboard — Nexgrad{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h3 class="fw-bold mb-1" style="color: var(--navy);">Institutional Placement & Accreditation Portal</h3>
+      <p class="text-muted small mb-0">Monitor campus placement drives, department placement rates, and corporate partnerships.</p>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-md-3">
+      <div class="card p-3 shadow-sm border-0 text-center">
+        <h6 class="text-muted small">Registered Students</h6>
+        <div class="fs-3 fw-bold" style="color: var(--navy);">1,250</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card p-3 shadow-sm border-0 text-center">
+        <h6 class="text-muted small">Placed Students</h6>
+        <div class="fs-3 fw-bold text-success">980</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card p-3 shadow-sm border-0 text-center">
+        <h6 class="text-muted small">Highest CTC Offered</h6>
+        <div class="fs-3 fw-bold" style="color: var(--slate);">₹44.0 LPA</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card p-3 shadow-sm border-0 text-center">
+        <h6 class="text-muted small">Active Placement Drives</h6>
+        <div class="fs-3 fw-bold" style="color: var(--teal);">8</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

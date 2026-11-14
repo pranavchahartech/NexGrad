@@ -1,0 +1,82 @@
+---
+- name: Deploy NexGrad frontend static assets and proxy configuration
+  hosts: production_web
+  become: true
+  tasks:
+    - name: Synchronize frontend static assets
+      ansible.posix.synchronize:
+        src: "{{ playbook_dir }}/../../frontend/static/"
+        dest: "{{ frontend_root }}/static/"
+        archive: true
+        delete: false
+      notify: Restart Nginx
+
+  handlers:
+    - name: Restart Nginx
+      ansible.builtin.systemd:
+        name: nginx
+        state: restarted
+
+- name: Deploy NexGrad Django backend and AI engine
+  hosts: production_app
+  become: true
+  serial: 1
+
+  tasks:
+    - name: Synchronize Django backend source
+      ansible.posix.synchronize:
+        src: "{{ playbook_dir }}/../../backend/"
+        dest: "{{ django_app_dir }}/"
+        archive: true
+        delete: false
+
+    - name: Synchronize AI service module
+      ansible.posix.synchronize:
+        src: "{{ playbook_dir }}/../../ai-service/"
+        dest: "{{ app_dir }}/ai-service/"
+        archive: true
+        delete: false
+
+    - name: Synchronize frontend templates
+      ansible.posix.synchronize:
+        src: "{{ playbook_dir }}/../../frontend/"
+        dest: "{{ app_dir }}/frontend/"
+        archive: true
+        delete: false
+
+    - name: Install Python dependencies
+      ansible.builtin.pip:
+        requirements: "{{ django_app_dir }}/requirements.txt"
+        virtualenv: "{{ django_venv }}"
+
+    - name: Run Django deployment checks
+      ansible.builtin.command:
+        cmd: "{{ django_venv }}/bin/python manage.py check --deploy"
+        chdir: "{{ django_app_dir }}"
+      changed_when: false
+
+    - name: Run Django migrations
+      ansible.builtin.command:
+        cmd: "{{ django_venv }}/bin/python manage.py migrate --noinput"
+        chdir: "{{ django_app_dir }}"
+
+    - name: Collect static files
+      ansible.builtin.command:
+        cmd: "{{ django_venv }}/bin/python manage.py collectstatic --noinput"
+        chdir: "{{ django_app_dir }}"
+
+    - name: Restart Django backend service
+      ansible.builtin.systemd:
+        name: "{{ django_service_name }}"
+        state: restarted
+        enabled: true
+
+    - name: Verify Django health endpoint
+      ansible.builtin.uri:
+        url: "{{ backend_health_url }}"
+        status_code: 200
+        timeout: 10
+      register: django_health
+      retries: 5
+      delay: 3
+      until: django_health.status == 200

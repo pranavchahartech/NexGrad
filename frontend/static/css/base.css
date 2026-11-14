@@ -1,0 +1,943 @@
+/* ==========================================================================
+   NEXGRAD - THE ENGINEERING CAREER INTELLIGENCE PLATFORM
+   Official 5-Color Brand Identity System:
+   1. Deep Navy:    #082B4C (Primary, Headings, Navigation, Dark Surfaces)
+   2. Warm Cream:   #F3EBDD (Hero backdrop, Warm surfaces, Section accents)
+   3. Sage Green:   #B9BEAA (Career growth, Badges, Subtle highlights)
+   4. Muted Teal:   #96AAA5 (Secondary accents, Metric cards, Verification)
+   5. Slate Blue:   #426F87 (Interactive links, Secondary CTAs, Active pills)
+   ========================================================================== */
+
+:root {
+  --navy: #082B4C;
+  --navy-dark: #051C33;
+  --navy-light: #123D66;
+  --cream: #F3EBDD;
+  --cream-soft: #FBF9F5;
+  --sage: #B9BEAA;
+  --sage-light: #E8ECE2;
+  --teal: #96AAA5;
+  --teal-light: #E3EAE8;
+  --slate: #426F87;
+  --slate-light: #E6EFF4;
+  --text-primary: #082B4C;
+  --text-muted: #5A6A78;
+  --border-subtle: #E9ECEF;
+  --surface-white: #FFFFFF;
+  --shadow-sm: 0 2px 8px rgba(8, 43, 76, 0.05);
+  --shadow-md: 0 8px 24px rgba(8, 43, 76, 0.08);
+  --shadow-lg: 0 16px 36px rgba(8, 43, 76, 0.12);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--text-primary);
+  background-color: var(--surface-white);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--navy);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* --------------------------------------------------------------------------
+   NAVBAR (Exact design from reference)
+   -------------------------------------------------------------------------- */
+.nex-navbar {
+  background-color: var(--surface-white);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 16px 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.nex-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--navy);
+  font-size: 1.55rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.nex-brand-logo {
+  height: 38px;
+  width: auto;
+  max-width: 48px;
+  object-fit: contain;
+  display: inline-block;
+  vertical-align: middle;
+  border-radius: 4px;
+}
+
+.nex-footer-logo {
+  height: 36px;
+  width: auto;
+  max-width: 48px;
+  object-fit: contain;
+  display: inline-block;
+  vertical-align: middle;
+  filter: brightness(0) invert(1);
+  transition: opacity 0.2s ease;
+}
+
+.nex-footer-logo:hover {
+  opacity: 0.9;
+}
+
+.nex-nav-link {
+  color: var(--navy) !important;
+  font-weight: 500;
+  font-size: 0.98rem;
+  padding: 8px 16px !important;
+  position: relative;
+  transition: color 0.2s ease;
+}
+
+.nex-nav-link:hover {
+  color: var(--slate) !important;
+}
+
+.nex-nav-link.active {
+  font-weight: 700;
+}
+
+.nex-nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 16px;
+  right: 16px;
+  height: 2.5px;
+  background-color: var(--navy);
+  border-radius: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   NAVBAR USER MENU & DROPDOWN SYSTEM
+   -------------------------------------------------------------------------- */
+.nex-user-dropdown {
+  position: relative;
+}
+
+.nex-user-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--surface-white);
+  border: 1.5px solid var(--border-subtle);
+  color: var(--navy);
+  font-weight: 600;
+  font-size: 0.92rem;
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(8, 43, 76, 0.04);
+}
+
+.nex-user-btn:hover,
+.nex-user-btn[aria-expanded="true"] {
+  border-color: var(--navy);
+  background-color: var(--cream-soft);
+  color: var(--navy);
+}
+
+.nex-user-btn .user-avatar-circle {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background-color: var(--navy);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.nex-dropdown-menu {
+  min-width: 250px;
+  max-width: calc(100vw - 32px);
+  padding: 8px;
+  border-radius: 12px;
+  background-color: var(--surface-white);
+  border: 1px solid rgba(8, 43, 76, 0.12);
+  box-shadow: 0 12px 30px -6px rgba(8, 43, 76, 0.14), 0 4px 10px -2px rgba(8, 43, 76, 0.06);
+  margin-top: 8px !important;
+  animation: nexDropdownFade 0.15s ease-out;
+}
+
+@keyframes nexDropdownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.nex-dropdown-header {
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid var(--border-subtle);
+  background-color: var(--cream-soft);
+  border-radius: 8px 8px 4px 4px;
+}
+
+.nex-dropdown-header .user-name {
+  font-weight: 700;
+  color: var(--navy);
+  font-size: 0.95rem;
+  line-height: 1.2;
+}
+
+.nex-dropdown-header .user-email {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nex-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  color: var(--text-dark);
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.nex-dropdown-item i {
+  font-size: 1.05rem;
+  width: 20px;
+  text-align: center;
+  color: var(--slate);
+  transition: color 0.15s ease;
+}
+
+.nex-dropdown-item:hover {
+  background-color: #F0F6F9;
+  color: var(--navy);
+}
+
+.nex-dropdown-item:hover i {
+  color: var(--navy);
+}
+
+.nex-dropdown-item.text-danger {
+  color: #DC2626 !important;
+}
+
+.nex-dropdown-item.text-danger i {
+  color: #DC2626 !important;
+}
+
+.nex-dropdown-item.text-danger:hover {
+  background-color: #FEF2F2 !important;
+  color: #B91C1C !important;
+}
+
+.nex-dropdown-divider {
+  margin: 6px 0;
+  border-top: 1px solid var(--border-subtle);
+  list-style: none;
+}
+
+@media (min-width: 992px) {
+  .nex-user-dropdown {
+    position: relative;
+    width: auto;
+  }
+  .nex-dropdown-menu {
+    right: 0 !important;
+    left: auto !important;
+    min-width: 250px;
+    width: max-content;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .nex-user-dropdown {
+    width: 100%;
+  }
+  .nex-user-btn {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .nex-dropdown-menu {
+    width: 100%;
+    max-width: 100%;
+    box-shadow: none;
+    border: 1px solid var(--border-subtle);
+    margin-top: 6px !important;
+  }
+}
+
+.btn-nex-outline {
+  border: 1.5px solid var(--navy);
+  color: var(--navy);
+  background: transparent;
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 7px 22px;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s ease;
+}
+
+.btn-nex-outline:hover {
+  background-color: var(--navy);
+  color: var(--surface-white);
+}
+
+.btn-nex-primary {
+  background-color: var(--navy);
+  color: var(--surface-white);
+  border: 1.5px solid var(--navy);
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 8px 24px;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-nex-primary:hover {
+  background-color: var(--navy-light);
+  border-color: var(--navy-light);
+  color: var(--surface-white);
+}
+
+.btn-nex-secondary {
+  background-color: var(--surface-white);
+  color: var(--navy);
+  border: 1.5px solid var(--navy);
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 8px 24px;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.btn-nex-secondary:hover {
+  background-color: var(--cream-soft);
+  color: var(--navy);
+}
+
+/* --------------------------------------------------------------------------
+   HERO SECTION (Matches reference screenshot)
+   -------------------------------------------------------------------------- */
+.hero-wrapper {
+  background-color: var(--cream-soft);
+  padding: 60px 0 50px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-headline {
+  font-size: 3.4rem;
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--navy);
+  margin-bottom: 20px;
+}
+
+.highlight-career {
+  color: var(--slate);
+  position: relative;
+  display: inline-block;
+}
+
+.hero-subtitle {
+  font-size: 1.15rem;
+  color: var(--text-muted);
+  max-width: 520px;
+  margin-bottom: 34px;
+  line-height: 1.55;
+}
+
+.hero-ctas {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.hero-visual-container {
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.hero-student-img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-lg);
+  position: relative;
+  z-index: 2;
+}
+
+/* --------------------------------------------------------------------------
+   BOTTOM FEATURE STRIP (The 4 iconic badges from reference image)
+   -------------------------------------------------------------------------- */
+.feature-strip {
+  background-color: var(--surface-white);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 28px 0;
+}
+
+.feature-strip-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.feature-strip-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.icon-sage {
+  background-color: var(--sage);
+  color: var(--navy);
+}
+
+.icon-teal {
+  background-color: var(--teal);
+  color: var(--navy);
+}
+
+.icon-slate {
+  background-color: var(--slate);
+  color: var(--surface-white);
+}
+
+.feature-strip-text h5 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+  color: var(--navy);
+}
+
+.feature-strip-text p {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   ECOSYSTEM CARDS SECTION
+   -------------------------------------------------------------------------- */
+.ecosystem-section {
+  padding: 80px 0;
+  background-color: var(--surface-white);
+}
+
+.section-eyebrow {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  color: var(--slate);
+  margin-bottom: 8px;
+}
+
+.section-title {
+  font-size: 2.3rem;
+  font-weight: 800;
+  color: var(--navy);
+  margin-bottom: 12px;
+}
+
+.section-subtitle {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  max-width: 600px;
+  margin: 0 auto 50px auto;
+}
+
+.eco-card {
+  background: var(--surface-white);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 30px 24px;
+  height: 100%;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  position: relative;
+}
+
+.eco-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--teal);
+}
+
+.eco-card-active {
+  background-color: #F0F6F9;
+  border-color: var(--slate);
+}
+
+.eco-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  margin-bottom: 20px;
+}
+
+.eco-card h4 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--navy);
+}
+
+.eco-card p {
+  font-size: 0.92rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   JOB & OPPORTUNITY CARDS
+   -------------------------------------------------------------------------- */
+.job-card {
+  background: var(--surface-white);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.2s ease;
+}
+
+.job-card:hover {
+  border-color: var(--slate);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-3px);
+}
+
+.job-company-badge {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--slate);
+}
+
+.skill-tag {
+  background-color: var(--cream-soft);
+  color: var(--navy);
+  border: 1px solid #E4DFD5;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: inline-block;
+  margin-right: 6px;
+  margin-bottom: 6px;
+}
+
+/* --------------------------------------------------------------------------
+   FOOTER
+   -------------------------------------------------------------------------- */
+.nex-footer {
+  background-color: var(--navy);
+  color: #C0CDD8;
+  padding: 70px 0 30px 0;
+  border-top: 1px solid var(--navy-dark);
+}
+
+.nex-footer h5 {
+  color: var(--surface-white);
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.nex-footer a {
+  color: #C0CDD8;
+  text-decoration: none;
+  font-size: 0.92rem;
+  display: inline-block;
+  margin-bottom: 10px;
+  transition: color 0.2s ease;
+}
+
+.nex-footer a:hover {
+  color: var(--cream);
+}
+
+.footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 24px;
+  margin-top: 50px;
+  font-size: 0.88rem;
+  color: #8C9DAE;
+}
+
+/* ==========================================================================
+   RESPONSIVE & MOBILE / TABLET OPTIMIZATION ENGINE
+   Ensures seamless viewing across 320px smartphones, 768px tablets, and desktops.
+   ========================================================================== */
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  overflow-x: hidden;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  -webkit-tap-highlight-color: rgba(8, 43, 76, 0.08);
+}
+
+main {
+  flex: 1 0 auto;
+}
+
+/* Responsive Decorative Elements */
+.hero-visual-curve {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 380px;
+  height: 380px;
+  background-color: var(--sage);
+  border-top-left-radius: 200px;
+  border-bottom-left-radius: 40px;
+  z-index: 1;
+  opacity: 0.85;
+  transition: all 0.3s ease;
+}
+
+/* Stepper horizontal scroll container */
+.pipeline-stepper-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 8px;
+}
+
+.pipeline-stepper-inner {
+  min-width: 480px;
+}
+
+/* --------------------------------------------------------------------------
+   Tablets (max-width: 991.98px)
+   -------------------------------------------------------------------------- */
+@media (max-width: 991.98px) {
+  .nex-navbar {
+    padding: 12px 0;
+  }
+
+  .navbar-collapse {
+    background-color: var(--surface-white);
+    padding: 16px 14px;
+    border-radius: var(--radius-md);
+    margin-top: 12px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-subtle);
+  }
+
+  .nex-nav-link {
+    padding: 10px 16px !important;
+    border-radius: var(--radius-sm);
+    font-size: 1rem;
+  }
+
+  .nex-nav-link:hover,
+  .nex-nav-link.active {
+    background-color: var(--cream-soft);
+  }
+
+  .nex-nav-link.active::after {
+    display: none;
+  }
+
+  .navbar-toggler {
+    padding: 6px 10px;
+    font-size: 1.15rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-subtle) !important;
+    background-color: var(--surface-white);
+  }
+
+  .navbar-toggler:focus {
+    box-shadow: 0 0 0 3px rgba(8, 43, 76, 0.15);
+  }
+
+  .hero-headline {
+    font-size: clamp(2.1rem, 5vw, 2.85rem);
+    line-height: 1.2;
+  }
+
+  .hero-subtitle {
+    font-size: 1.05rem;
+  }
+
+  .hero-visual-container {
+    justify-content: center;
+    margin-top: 24px;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .hero-visual-curve {
+    width: 290px;
+    height: 290px;
+    border-top-left-radius: 140px;
+  }
+
+  .section-title {
+    font-size: 1.95rem;
+  }
+
+  .ecosystem-section {
+    padding: 60px 0;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Mobile Landscape & Phablets (max-width: 767.98px)
+   -------------------------------------------------------------------------- */
+@media (max-width: 767.98px) {
+  .container {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .hero-wrapper {
+    padding: 40px 0 32px 0;
+  }
+
+  .hero-headline {
+    font-size: clamp(1.85rem, 6.5vw, 2.35rem);
+    margin-bottom: 14px;
+  }
+
+  .hero-subtitle {
+    font-size: 0.98rem;
+    margin-bottom: 24px;
+  }
+
+  .feature-strip {
+    padding: 20px 0;
+  }
+
+  .feature-strip-item {
+    gap: 12px;
+  }
+
+  .feature-strip-icon {
+    width: 44px;
+    height: 44px;
+    font-size: 1.25rem;
+    border-radius: 10px;
+  }
+
+  .feature-strip-text h5 {
+    font-size: 0.95rem;
+  }
+
+  .feature-strip-text p {
+    font-size: 0.8rem;
+  }
+
+  .section-title {
+    font-size: 1.65rem;
+  }
+
+  .section-subtitle {
+    font-size: 0.95rem;
+    margin-bottom: 32px;
+  }
+
+  /* Universal Touch Targets: Inputs, Selects, Buttons */
+  .btn,
+  .form-control,
+  .form-select {
+    min-height: 44px;
+    font-size: 0.95rem;
+  }
+
+  .btn-sm {
+    min-height: 36px;
+    font-size: 0.85rem;
+    padding: 6px 12px;
+  }
+
+  /* Fluid Button Groups */
+  .btn-group {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .btn-group > .btn {
+    border-radius: var(--radius-sm) !important;
+  }
+
+  /* Responsive Data Tables with Touch Momentum Scrolling */
+  .table-responsive {
+    position: relative;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    -webkit-overflow-scrolling: touch;
+    overflow-x: auto;
+  }
+
+  .table-responsive .table {
+    min-width: 620px;
+    margin-bottom: 0;
+    font-size: 0.88rem;
+  }
+
+  .table-responsive .table th,
+  .table-responsive .table td {
+    padding: 10px 12px;
+  }
+
+  /* Card padding scaling on mobile */
+  .card.p-4 {
+    padding: 20px !important;
+  }
+
+  .card.p-5 {
+    padding: 24px !important;
+  }
+
+  /* Mobile Footer */
+  .nex-footer {
+    padding: 46px 0 24px 0;
+  }
+
+  .nex-footer h5 {
+    margin-top: 10px;
+    margin-bottom: 12px;
+  }
+
+  .footer-bottom {
+    margin-top: 32px;
+    padding-top: 20px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Small Mobile Phones (max-width: 575.98px)
+   -------------------------------------------------------------------------- */
+@media (max-width: 575.98px) {
+  .hero-headline {
+    font-size: 1.85rem;
+    line-height: 1.22;
+  }
+
+  .hero-ctas {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .hero-ctas .btn-nex-primary,
+  .hero-ctas .btn-nex-secondary {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+    padding: 12px 20px;
+    font-size: 1rem;
+  }
+
+  .hero-visual-curve {
+    width: 220px;
+    height: 220px;
+    border-top-left-radius: 110px;
+  }
+
+  .card.p-4,
+  .card.p-5 {
+    padding: 16px !important;
+  }
+
+  .card.p-3 {
+    padding: 12px !important;
+  }
+
+  /* Compact Metric Displays on small screens */
+  .display-3 {
+    font-size: 2.2rem !important;
+  }
+
+  .display-4 {
+    font-size: 2rem !important;
+  }
+
+  .display-6 {
+    font-size: 1.65rem !important;
+  }
+
+  /* Modal scaling for small touch screens */
+  .modal-dialog {
+    margin: 12px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Extra-Narrow Smartphones (max-width: 380px)
+   -------------------------------------------------------------------------- */
+@media (max-width: 380px) {
+  .hero-headline {
+    font-size: 1.65rem;
+  }
+
+  .feature-strip .col-6 {
+    width: 100%;
+  }
+
+  .nex-brand {
+    font-size: 1.35rem;
+  }
+
+  .nex-brand-logo {
+    height: 32px;
+    max-width: 40px;
+  }
+
+  .nex-footer-logo {
+    height: 30px;
+    max-width: 40px;
+  }
+}
+

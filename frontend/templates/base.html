@@ -1,0 +1,971 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <meta name="theme-color" content="#082B4C">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>{% block title %}{{ BRAND_NAME }} — The Engineering Career Intelligence Platform{% endblock %}</title>
+
+  <!-- Website Favicon & Tab Icon -->
+  <link rel="icon" type="image/png" href="{% static 'images/nexgradlogo.png' %}">
+  <link rel="shortcut icon" type="image/png" href="{% static 'images/nexgradlogo.png' %}">
+  <link rel="apple-touch-icon" href="{% static 'images/nexgradlogo.png' %}">
+
+  <!-- Google Fonts: Inter & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <!-- Nexgrad Design System -->
+  <link rel="stylesheet" href="{% static 'css/base.css' %}?v=2.2">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+  <!-- ======================================================================
+       PRIMARY NAVIGATION (Matches Reference Mockup)
+       ====================================================================== -->
+  <nav class="navbar navbar-expand-lg nex-navbar">
+    <div class="container">
+      <!-- Brand Logo -->
+      <a class="nex-brand" href="{% url 'core:home' %}">
+        <img src="{% static 'images/nexgradlogo.png' %}" alt="{{ BRAND_NAME }} Logo" class="nex-brand-logo">
+        <span>{{ BRAND_NAME }}</span>
+      </a>
+
+      <!-- Mobile Toggle -->
+      <button class="navbar-toggler border-0 shadow-none p-2" type="button" data-bs-toggle="collapse" data-bs-target="#nexNavContent" aria-controls="nexNavContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <!-- Center Links -->
+      <div class="collapse navbar-collapse" id="nexNavContent">
+        <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link nex-nav-link {% if active_page == 'home' %}active{% endif %}" href="{% url 'core:home' %}">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link nex-nav-link {% if active_page == 'jobs' %}active{% endif %}" href="{% url 'jobs:list' %}">Jobs</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link nex-nav-link {% if active_page == 'internships' %}active{% endif %}" href="{% url 'jobs:internship_list' %}">Internships</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link nex-nav-link {% if active_page == 'assessments' %}active{% endif %}" href="{% url 'assessments:list' %}">Assessments</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link nex-nav-link {% if active_page == 'career_guidance' %}active{% endif %}" href="{% url 'core:career_guidance' %}">Career Guidance</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link nex-nav-link {% if active_page == 'about' %}active{% endif %}" href="{% url 'core:about' %}">About Us</a>
+          </li>
+          {% if user.is_authenticated and user.is_student %}
+          <li class="nav-item">
+            <a class="nav-link nex-nav-link d-flex align-items-center gap-2 {% if active_page == 'novus_assistant' %}active{% endif %}" href="{% url 'ai_assistant:workspace' %}" style="color: var(--navy); font-weight: 700;">
+              <img src="{% static 'images/novus_bot.png' %}" alt="Novus" style="width: 22px; height: 22px; object-fit: contain;">
+              <span>Novus AI</span>
+              <span class="badge rounded-pill bg-primary" style="font-size: 0.65rem;">Gemini</span>
+            </a>
+          </li>
+          {% endif %}
+        </ul>
+
+        <!-- Right Side Auth Actions -->
+        <div class="d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center gap-2 pt-3 pt-lg-0 border-top border-lg-0 mt-3 mt-lg-0">
+          {% if user.is_authenticated %}
+            <div class="dropdown nex-user-dropdown">
+              <button class="btn nex-user-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <span class="user-avatar-circle">
+                  {{ user.username|slice:":1"|upper }}
+                </span>
+                <span>{{ user.first_name|default:user.username }}</span>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end nex-dropdown-menu">
+                <li class="nex-dropdown-header">
+                  <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
+                  <div class="user-email">{{ user.email }}</div>
+                  <span class="badge mt-1" style="background-color: var(--navy); color: #fff; font-size: 0.7rem;">
+                    {{ user.get_role_display }}
+                  </span>
+                </li>
+                {% if user.is_student %}
+                  <li><a class="nex-dropdown-item d-flex align-items-center gap-2" href="{% url 'ai_assistant:workspace' %}"><img src="{% static 'images/novus_bot.png' %}" alt="Novus" style="width: 18px; height: 18px; object-fit: contain;"><strong>Novus AI Career Companion</strong></a></li>
+                  <li><a class="nex-dropdown-item" href="{% url 'students:dashboard' %}"><i class="bi bi-grid-fill text-primary"></i>Student Workspace</a></li>
+                  <li><a class="nex-dropdown-item" href="{% url 'challenges:student_my_challenges' %}"><i class="bi bi-shield-lock-fill text-primary"></i>My Selected Challenges</a></li>
+                  <li><a class="nex-dropdown-item" href="{% url 'applications:my_applications' %}"><i class="bi bi-card-checklist text-primary"></i>My Applications</a></li>
+                {% elif user.is_recruiter %}
+                  <li><a class="nex-dropdown-item" href="{% url 'recruiters:dashboard' %}"><i class="bi bi-briefcase-fill text-primary"></i>Recruiter Workspace</a></li>
+                  <li><a class="nex-dropdown-item" href="{% url 'challenges:recruiter_challenge_list' %}"><i class="bi bi-shield-lock-fill text-primary"></i>Challenge Management</a></li>
+                {% elif user.is_institution %}
+                  <li><a class="nex-dropdown-item" href="{% url 'institutions:dashboard' %}"><i class="bi bi-building text-primary"></i>Placement Portal</a></li>
+                {% endif %}
+                {% if user.is_staff or user.role == 'ADMIN' %}
+                  <li><a class="nex-dropdown-item" href="{% url 'recruiters:admin_discovery' %}"><i class="bi bi-buildings-fill text-primary"></i>Company &amp; Recruiter Directory</a></li>
+                {% endif %}
+                <li><a class="nex-dropdown-item" href="{% url 'notifications:list' %}"><i class="bi bi-bell-fill text-secondary"></i>Notifications</a></li>
+                <li class="nex-dropdown-divider"></li>
+                <li><a class="nex-dropdown-item text-danger" href="{% url 'accounts:logout' %}"><i class="bi bi-box-arrow-right"></i>Logout</a></li>
+              </ul>
+            </div>
+          {% else %}
+            <a href="{% url 'accounts:login' %}" class="btn btn-nex-outline text-center">Login</a>
+            <div class="dropdown">
+              <button class="btn btn-nex-primary dropdown-toggle justify-content-center" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Get Started
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end nex-dropdown-menu">
+                <li><a class="nex-dropdown-item" href="{% url 'accounts:register_student' %}"><i class="bi bi-mortarboard-fill text-primary"></i>Register as Engineering Student</a></li>
+                <li><a class="nex-dropdown-item" href="{% url 'accounts:register_recruiter' %}"><i class="bi bi-building-fill text-secondary"></i>Register as Company Recruiter</a></li>
+              </ul>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Platform Feedback Messages -->
+  {% if messages %}
+    <div class="container mt-3">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show shadow-sm" role="alert">
+          <i class="bi bi-info-circle-fill me-2"></i>{{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- Main Content Block -->
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- ======================================================================
+       PLATFORM FOOTER (Deep Navy Identity #082B4C)
+       ====================================================================== -->
+  <footer class="nex-footer">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-lg-4">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <img src="{% static 'images/nexgradlogo.png' %}" alt="{{ BRAND_NAME }} Logo" class="nex-footer-logo" style="filter: brightness(0) invert(1);">
+            <h4 class="text-white mb-0 fw-bold">{{ BRAND_NAME }}</h4>
+          </div>
+          <p class="text-muted-light small pe-lg-4" style="color: #A3B5C6;">
+            The unified career intelligence and employment ecosystem connecting engineering students, top tech recruiters, and institutional placement departments.
+          </p>
+          <div class="d-flex flex-wrap gap-2 mt-3">
+            <span class="badge" style="background-color: var(--slate); color: #fff;">Verified Talent</span>
+            <span class="badge" style="background-color: var(--teal); color: var(--navy);">Skill Assessments</span>
+            <span class="badge" style="background-color: var(--sage); color: var(--navy);">Explainable Matching</span>
+          </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-2">
+          <h5>For Students</h5>
+          <ul class="list-unstyled">
+            <li><a href="{% url 'jobs:list' %}">Explore Jobs</a></li>
+            <li><a href="{% url 'jobs:internship_list' %}">Explore Internships</a></li>
+            <li><a href="{% url 'assessments:list' %}">Technical Tests</a></li>
+            <li><a href="{% url 'core:career_guidance' %}">Role Roadmaps</a></li>
+            <li><a href="{% url 'accounts:register_student' %}">Create Portfolio</a></li>
+          </ul>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-3">
+          <h5>Recruiters & Colleges</h5>
+          <ul class="list-unstyled">
+            <li><a href="{% url 'core:for_recruiters' %}">Recruitment Portal</a></li>
+            <li><a href="{% url 'core:for_institutions' %}">Placement Cell Dashboard</a></li>
+            <li><a href="{% url 'accounts:register_recruiter' %}">Post Engineering Roles</a></li>
+            <li><a href="{% url 'core:api_docs' %}">Partner & Developer API</a></li>
+          </ul>
+        </div>
+
+        <div class="col-12 col-lg-3">
+          <h5>Platform & Mission</h5>
+          <p class="small" style="color: #A3B5C6;">
+            Empowering early-career engineering talent with verified technical skills, transparent recruiting pipelines, and explainable career intelligence.
+          </p>
+          <div class="mt-3">
+            <a href="{% url 'core:about' %}" class="btn btn-sm btn-outline-light">About Us</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+        <div class="text-center text-md-start">
+          &copy; 2026 {{ BRAND_NAME }} — The Engineering Career Intelligence Platform. All rights reserved.
+        </div>
+        <div class="d-flex flex-wrap justify-content-center gap-3">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+          <a href="#">Security Safeguards</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Floating Novus AI Bot Launcher (Bottom-Right Corner) -->
+  <aside id="novusFloatingWidget" class="novus-floating-widget" aria-label="Novus AI Career Companion">
+    <button type="button" id="novusFloatingBtn" class="novus-floating-btn" title="Open Novus AI Assistant">
+      <div class="novus-icon-wrapper">
+        <img src="{% static 'images/novus_bot.png' %}" alt="Novus AI Bot" class="novus-bot-avatar">
+        <span class="novus-online-dot"></span>
+      </div>
+      <div class="novus-floating-pill">
+        <span class="novus-pill-badge">Gemini AI</span>
+        <span class="novus-pill-title">Ask Novus</span>
+      </div>
+    </button>
+  </aside>
+
+  <!-- Novus AI Interactive Popup Window -->
+  <div id="novusChatPopup" class="novus-chat-popup" style="display: none;" aria-label="Novus AI Chat Assistant">
+    <!-- Popup Header -->
+    <div class="novus-popup-header">
+      <div class="d-flex align-items-center gap-2">
+        <div class="novus-popup-avatar-wrap">
+          <img src="{% static 'images/novus_bot.png' %}" alt="Novus" class="novus-popup-avatar">
+          <span class="novus-popup-dot"></span>
+        </div>
+        <div>
+          <div class="novus-popup-title">Novus AI Companion</div>
+          <div class="novus-popup-subtitle">Google Gemini Career Intelligence</div>
+        </div>
+      </div>
+      <div class="novus-popup-actions">
+        <!-- Near Close Button: Redirect to Full AI Bot Page to Continue Chat -->
+        <a id="novusExpandWorkspaceBtn" href="{% url 'ai_assistant:workspace' %}" class="novus-header-btn" title="Open Full Workspace (Continue Chat There)" aria-label="Open Full Workspace">
+          <i class="bi bi-arrows-angle-expand"></i>
+        </a>
+        <!-- Close Popup Button -->
+        <button type="button" id="novusClosePopupBtn" class="novus-header-btn" title="Close" aria-label="Close">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Popup Body / Chat Feed -->
+    <div id="novusPopupFeed" class="novus-popup-feed">
+      {% if user.is_authenticated and user.is_student %}
+        <!-- Initial Greeting from Novus -->
+        <div class="novus-pop-msg assistant">
+          <div class="novus-pop-avatar">
+            <img src="{% static 'images/novus_bot.png' %}" alt="Novus">
+          </div>
+          <div class="novus-pop-bubble">
+            <div>Hi <strong>{{ user.first_name|default:user.username }}</strong>! I'm Novus. Ask me anything about job matching, skill gaps, or interview prep.</div>
+            <div class="novus-pop-chips mt-2">
+              <button type="button" class="novus-pop-chip" data-action="find_jobs"><i class="bi bi-briefcase-fill me-1"></i>Match Jobs</button>
+              <button type="button" class="novus-pop-chip" data-action="skill_gap"><i class="bi bi-bullseye me-1"></i>Skill Gap</button>
+              <button type="button" class="novus-pop-chip" data-action="create_roadmap"><i class="bi bi-diagram-3-fill me-1"></i>Roadmap</button>
+              <button type="button" class="novus-pop-chip" data-action="mock_interview"><i class="bi bi-mic-fill me-1"></i>Mock Interview</button>
+            </div>
+          </div>
+        </div>
+      {% elif user.is_authenticated %}
+        <div class="novus-pop-msg assistant">
+          <div class="novus-pop-avatar">
+            <img src="{% static 'images/novus_bot.png' %}" alt="Novus">
+          </div>
+          <div class="novus-pop-bubble">
+            Hello <strong>{{ user.first_name|default:user.username }}</strong>! Novus is tailored for student career intelligence. You can open the dedicated assistant workspace below.
+            <div class="mt-2">
+              <a href="{% url 'ai_assistant:workspace' %}" class="btn btn-sm btn-primary w-100" style="font-size: 0.8rem;">
+                Open Novus Workspace <i class="bi bi-arrow-right ms-1"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <div class="novus-pop-msg assistant">
+          <div class="novus-pop-avatar">
+            <img src="{% static 'images/novus_bot.png' %}" alt="Novus">
+          </div>
+          <div class="novus-pop-bubble">
+            Hello! I'm <strong>Novus</strong>, your personal AI career companion at NexGrad.
+            <p class="small text-muted mt-2 mb-2">Log in with your engineering student account to unlock real-time job eligibility matching, resume audits, and mock interview practice.</p>
+            <a href="{% url 'accounts:login' %}?next={% url 'ai_assistant:workspace' %}" class="btn btn-sm btn-primary w-100" style="font-size: 0.8rem;">
+              Log In as Student <i class="bi bi-box-arrow-in-right ms-1"></i>
+            </a>
+          </div>
+        </div>
+      {% endif %}
+
+      <!-- Typing Indicator -->
+      <div id="novusPopupTyping" class="novus-pop-msg assistant d-none">
+        <div class="novus-pop-avatar">
+          <img src="{% static 'images/novus_bot.png' %}" alt="Novus">
+        </div>
+        <div class="novus-pop-bubble py-2 px-3">
+          <div class="novus-pop-dots">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Popup Footer / Input -->
+    {% if user.is_authenticated and user.is_student %}
+      <div class="novus-popup-footer">
+        <div class="novus-popup-input-wrap">
+          <textarea id="novusPopupInput" class="novus-popup-textarea" rows="1" placeholder="Ask Novus anything..."></textarea>
+          <button type="button" id="novusPopupSendBtn" class="novus-popup-send" title="Send (Enter)">
+            <i class="bi bi-arrow-up"></i>
+          </button>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mt-1 px-1">
+          <span style="font-size: 0.68rem; color: #94A3B8;">Powered by Gemini</span>
+          <a id="novusContinueLink" href="{% url 'ai_assistant:workspace' %}" style="font-size: 0.7rem; color: #2563EB; text-decoration: none; font-weight: 600;">
+            Continue in full page &rarr;
+          </a>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  <style>
+    /* Floating Widget Button */
+    .novus-floating-widget {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 1050;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .novus-floating-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(8, 43, 76, 0.96);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 6px 14px 6px 6px;
+      border-radius: 999px;
+      border: 1.5px solid rgba(0, 180, 255, 0.4);
+      box-shadow: 0 8px 24px rgba(8, 43, 76, 0.28), 0 0 18px rgba(0, 195, 255, 0.25);
+      transition: all 0.25s ease;
+      cursor: pointer;
+    }
+
+    .novus-floating-btn:hover {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 12px 32px rgba(8, 43, 76, 0.4), 0 0 28px rgba(0, 195, 255, 0.45);
+      border-color: rgba(0, 215, 255, 0.8);
+    }
+
+    .novus-icon-wrapper {
+      position: relative;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(14, 165, 233, 0.3) 0%, rgba(8, 43, 76, 0.9) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .novus-bot-avatar {
+      width: 42px;
+      height: 42px;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 8px rgba(0, 195, 255, 0.5));
+      animation: novusFloat 3s ease-in-out infinite;
+    }
+
+    .novus-online-dot {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      width: 10px;
+      height: 10px;
+      background-color: #10B981;
+      border: 2px solid #082B4C;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #10B981;
+    }
+
+    .novus-floating-pill {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      line-height: 1.2;
+    }
+
+    .novus-pill-badge {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: #38BDF8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .novus-pill-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      white-space: nowrap;
+    }
+
+    @keyframes novusFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+
+    /* Popup Chat Window */
+    .novus-chat-popup {
+      position: fixed;
+      bottom: 92px;
+      right: 24px;
+      width: 390px;
+      max-width: calc(100vw - 32px);
+      height: 540px;
+      max-height: calc(100vh - 110px);
+      background: #FFFFFF;
+      border-radius: 18px;
+      border: 1px solid #CBD5E1;
+      box-shadow: 0 20px 50px rgba(8, 43, 76, 0.3), 0 0 1px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      z-index: 1060;
+      overflow: hidden;
+      animation: novusPopupSlide 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes novusPopupSlide {
+      from {
+        opacity: 0;
+        transform: translateY(16px) scale(0.96);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .novus-popup-header {
+      background: #082B4C;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid #0284C7;
+      flex-shrink: 0;
+    }
+
+    .novus-popup-avatar-wrap {
+      position: relative;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(14, 165, 233, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .novus-popup-avatar {
+      width: 30px;
+      height: 30px;
+      object-fit: contain;
+    }
+
+    .novus-popup-dot {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 8px;
+      height: 8px;
+      background: #10B981;
+      border: 1.5px solid #082B4C;
+      border-radius: 50%;
+    }
+
+    .novus-popup-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      line-height: 1.2;
+    }
+
+    .novus-popup-subtitle {
+      font-size: 0.68rem;
+      color: #94A3B8;
+    }
+
+    .novus-popup-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .novus-header-btn {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #FFFFFF;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      text-decoration: none;
+      transition: all 0.15s ease;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .novus-header-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+      color: #38BDF8;
+      transform: scale(1.06);
+    }
+
+    /* Popup Message Feed */
+    .novus-popup-feed {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: #F8FAFC;
+      scroll-behavior: smooth;
+    }
+
+    .novus-pop-msg {
+      display: flex;
+      gap: 8px;
+      max-width: 90%;
+    }
+
+    .novus-pop-msg.user {
+      align-self: flex-end;
+      flex-direction: row-reverse;
+    }
+
+    .novus-pop-msg.assistant {
+      align-self: flex-start;
+    }
+
+    .novus-pop-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .novus-pop-avatar img {
+      width: 26px;
+      height: 26px;
+      object-fit: contain;
+    }
+
+    .novus-pop-msg.user .novus-pop-avatar {
+      background: #E2E8F0;
+      color: #082B4C;
+    }
+
+    .novus-pop-bubble {
+      padding: 8px 12px;
+      border-radius: 14px;
+      font-size: 0.83rem;
+      line-height: 1.45;
+    }
+
+    .novus-pop-msg.user .novus-pop-bubble {
+      background: #082B4C;
+      color: #FFFFFF;
+      border-top-right-radius: 2px;
+    }
+
+    .novus-pop-msg.assistant .novus-pop-bubble {
+      background: #FFFFFF;
+      color: #1E293B;
+      border: 1px solid #E2E8F0;
+      border-top-left-radius: 2px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+
+    .novus-pop-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .novus-pop-chip {
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      background: #EFF6FF;
+      color: #1D4ED8;
+      border: 1px solid #BFDBFE;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .novus-pop-chip:hover {
+      background: #DBEAFE;
+      transform: translateY(-1px);
+    }
+
+    .novus-popup-footer {
+      padding: 10px 12px;
+      background: #FFFFFF;
+      border-top: 1px solid #E2E8F0;
+      flex-shrink: 0;
+    }
+
+    .novus-popup-input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #F1F5F9;
+      border: 1px solid #CBD5E1;
+      border-radius: 12px;
+      padding: 5px 8px;
+    }
+
+    .novus-popup-input-wrap:focus-within {
+      border-color: #082B4C;
+      background: #FFFFFF;
+    }
+
+    .novus-popup-textarea {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 0.85rem;
+      resize: none;
+      max-height: 80px;
+      line-height: 1.35;
+      color: #1E293B;
+    }
+
+    .novus-popup-send {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: #082B4C;
+      color: #FFFFFF;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+    }
+
+    .novus-popup-send:hover {
+      background: #0F3B66;
+      transform: scale(1.06);
+    }
+
+    .novus-pop-dots span {
+      display: inline-block;
+      width: 5px;
+      height: 5px;
+      background: #94A3B8;
+      border-radius: 50%;
+      margin: 0 1.5px;
+      animation: novusBounce 1.4s infinite ease-in-out both;
+    }
+
+    .novus-pop-dots span:nth-child(1) { animation-delay: -0.32s; }
+    .novus-pop-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+    @keyframes novusBounce {
+      0%, 80%, 100% { transform: scale(0); }
+      40% { transform: scale(1); }
+    }
+
+    @media (max-width: 576px) {
+      .novus-floating-widget {
+        bottom: 16px;
+        right: 16px;
+      }
+      .novus-floating-pill {
+        display: none;
+      }
+      .novus-floating-btn {
+        padding: 4px;
+        border-radius: 50%;
+      }
+      .novus-chat-popup {
+        bottom: 76px;
+        right: 12px;
+        width: calc(100vw - 24px);
+        height: 480px;
+      }
+    }
+  </style>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const floatBtn = document.getElementById('novusFloatingBtn');
+    const popup = document.getElementById('novusChatPopup');
+    const closeBtn = document.getElementById('novusClosePopupBtn');
+    const expandBtn = document.getElementById('novusExpandWorkspaceBtn');
+    const continueLink = document.getElementById('novusContinueLink');
+    const input = document.getElementById('novusPopupInput');
+    const sendBtn = document.getElementById('novusPopupSendBtn');
+    const feed = document.getElementById('novusPopupFeed');
+    const typing = document.getElementById('novusPopupTyping');
+
+    let activeConvId = sessionStorage.getItem('novus_active_conv_id') || null;
+    let historyLoaded = false;
+
+    if (activeConvId) {
+      updateWorkspaceLinks(activeConvId);
+    }
+
+    // Toggle Popup Window
+    if (floatBtn && popup) {
+      floatBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        if (popup.style.display === 'none' || popup.classList.contains('d-none')) {
+          popup.style.display = 'flex';
+          popup.classList.remove('d-none');
+          if (input) input.focus();
+
+          // Restore conversation history if not yet loaded
+          if (!historyLoaded && activeConvId) {
+            restorePopupHistory(activeConvId);
+          }
+        } else {
+          popup.style.display = 'none';
+        }
+      });
+    }
+
+    // Close Popup Window
+    if (closeBtn && popup) {
+      closeBtn.addEventListener('click', function () {
+        popup.style.display = 'none';
+      });
+    }
+
+    // Update redirection links to continue chat in workspace
+    function updateWorkspaceLinks(convId) {
+      if (!convId) return;
+      activeConvId = convId;
+      sessionStorage.setItem('novus_active_conv_id', convId);
+      const targetUrl = "{% url 'ai_assistant:workspace' %}?conv=" + convId;
+      if (expandBtn) expandBtn.href = targetUrl;
+      if (continueLink) continueLink.href = targetUrl;
+    }
+
+    // Restore conversation history after refresh
+    async function restorePopupHistory(convId) {
+      try {
+        const resp = await fetch(`/assistant/api/conversations/${convId}/`);
+        if (resp.ok) {
+          const data = await resp.json();
+          if (data.messages && data.messages.length > 0) {
+            // Clear default greeting if we have prior messages
+            const existingMsgs = feed.querySelectorAll('.novus-pop-msg:not(#novusPopupTyping)');
+            existingMsgs.forEach(m => m.remove());
+
+            data.messages.forEach(m => {
+              appendPopupMsg(m.role, m.content);
+            });
+            historyLoaded = true;
+          }
+        }
+      } catch (e) {
+        console.error('Failed to restore popup history:', e);
+      }
+    }
+
+    // Format simple markdown
+    function quickFormat(text) {
+      if (!text) return '';
+      return text
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/\n/g, '<br>');
+    }
+
+    function getPopupCsrfToken() {
+      const meta = document.querySelector('meta[name="csrf-token"]');
+      if (meta && meta.content) return meta.content;
+      const el = document.querySelector('[name=csrfmiddlewaretoken]');
+      if (el && el.value) return el.value;
+      const cookie = document.cookie.split('; ').find(row => row.startsWith('csrftoken='));
+      if (cookie) return decodeURIComponent(cookie.split('=')[1]);
+      return '{{ csrf_token }}';
+    }
+
+    // Append message to popup feed
+    function appendPopupMsg(role, text, isRawHtml = false) {
+      if (!feed) return;
+      const msgDiv = document.createElement('div');
+      msgDiv.className = `novus-pop-msg ${role}`;
+      const avatarHtml = role === 'assistant'
+        ? '<img src="{% static "images/novus_bot.png" %}" alt="Novus">'
+        : '{{ user.first_name|default:user.username|slice:":1"|upper }}';
+
+      const bodyHtml = isRawHtml ? text : quickFormat(text);
+      msgDiv.innerHTML = `
+        <div class="novus-pop-avatar">${avatarHtml}</div>
+        <div class="novus-pop-bubble">${bodyHtml}</div>
+      `;
+
+      if (typing && typing.parentElement === feed) {
+        feed.insertBefore(msgDiv, typing);
+      } else {
+        feed.appendChild(msgDiv);
+      }
+      feed.scrollTop = feed.scrollHeight;
+    }
+
+    function showPopupTyping(show) {
+      if (typing) {
+        if (show) {
+          if (typing.parentElement !== feed) {
+            feed.appendChild(typing);
+          }
+          typing.classList.remove('d-none');
+          feed.scrollTop = feed.scrollHeight;
+        } else {
+          typing.classList.add('d-none');
+        }
+      }
+    }
+
+    // Send Message
+    async function sendPopupMsg(messageText, action = null) {
+      if (!messageText && !action) return;
+      if (sendBtn) sendBtn.disabled = true;
+
+      if (!action) {
+        appendPopupMsg('user', messageText);
+        if (input) {
+          input.value = '';
+          input.style.height = 'auto';
+        }
+      }
+
+      showPopupTyping(true);
+
+      try {
+        const csrfToken = getPopupCsrfToken();
+
+        const endpoint = action ? '/assistant/api/quick-action/' : '/assistant/api/send/';
+        const payload = action
+          ? { action: action, conversation_id: activeConvId }
+          : { message: messageText, conversation_id: activeConvId };
+
+        const resp = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': csrfToken,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await resp.json();
+        showPopupTyping(false);
+        if (sendBtn) sendBtn.disabled = false;
+
+        if (resp.status === 401 || (data && data.auth_required)) {
+          appendPopupMsg('assistant', `⚠️ Please <a href="{% url 'accounts:login' %}?next={% url 'ai_assistant:workspace' %}" class="fw-bold text-primary">sign in</a> with your student account to chat with Novus.`, true);
+          return;
+        }
+
+        if (data.status === 'success') {
+          updateWorkspaceLinks(data.conversation_id);
+          appendPopupMsg('assistant', data.content);
+
+          // If structured data was returned, render compact helper cards in popup
+          if (data.structured_data) {
+            const sd = data.structured_data;
+            if (sd.type === 'job_list' && sd.data && sd.data.jobs) {
+              let jobCardsHtml = '<div class="mt-2 d-flex flex-column gap-2">';
+              sd.data.jobs.forEach(j => {
+                jobCardsHtml += `
+                  <div class="p-2 border rounded bg-white shadow-sm" style="font-size: 0.78rem;">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                      <strong class="text-dark">${j.title}</strong>
+                      <span class="badge bg-success-subtle text-success">${j.match_percentage}%</span>
+                    </div>
+                    <div class="text-muted mb-1" style="font-size: 0.72rem;">${j.company} &bull; ${j.location}</div>
+                    <div class="d-flex justify-content-between align-items-center pt-1 border-top" style="font-size: 0.72rem;">
+                      <span class="text-success fw-semibold">${j.salary_range}</span>
+                      <a href="/jobs/${j.slug}/" class="text-primary text-decoration-none fw-bold">View &rarr;</a>
+                    </div>
+                  </div>
+                `;
+              });
+              jobCardsHtml += '</div>';
+              appendPopupMsg('assistant', jobCardsHtml, true);
+            }
+          }
+        } else {
+          appendPopupMsg('assistant', "⚠️ " + (data.error || "Unable to process message."));
+        }
+      } catch (err) {
+        showPopupTyping(false);
+        if (sendBtn) sendBtn.disabled = false;
+        appendPopupMsg('assistant', "⚠️ Connection error. Please check your network.");
+      }
+    }
+
+    if (sendBtn && input) {
+      sendBtn.addEventListener('click', function () {
+        const val = input.value.trim();
+        if (val) sendPopupMsg(val);
+      });
+
+      input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          const val = input.value.trim();
+          if (val) sendPopupMsg(val);
+        }
+      });
+    }
+
+    // Quick chip buttons inside popup
+    document.addEventListener('click', function (e) {
+      const chip = e.target.closest('.novus-pop-chip');
+      if (chip) {
+        const action = chip.getAttribute('data-action');
+        if (action) {
+          sendPopupMsg(null, action);
+        }
+      }
+    });
+  });
+  </script>
+
+  <!-- Bootstrap 5 Bundle JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>
+

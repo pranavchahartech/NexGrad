@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ challenge.title }} — Private Assessment{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+  <!-- Header -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div>
+      <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+        <span class="badge" style="background-color: var(--sage); color: var(--navy); font-weight: 700;">
+          <i class="bi bi-shield-lock-fill me-1"></i> Private Recruiter Assessment
+        </span>
+        <span class="badge" style="background-color: var(--teal-light); color: var(--navy);">
+          {{ challenge.get_challenge_type_display }}
+        </span>
+        <span class="badge" style="background-color: var(--slate-light); color: var(--navy);">
+          {{ challenge.get_difficulty_display }}
+        </span>
+      </div>
+      <h2 class="fw-bold mb-1" style="color: var(--navy);">{{ challenge.title }}</h2>
+      <p class="text-muted small mb-0">
+        Assigned by: <strong>{{ challenge.recruiter.company.name|default:"Hiring Partner" }}</strong> &bull;
+        Role: <strong>{{ challenge.role_title }}</strong> &bull;
+        Max Marks: <strong>{{ challenge.maximum_marks }}</strong>
+      </p>
+    </div>
+
+    <div class="d-flex gap-2 mt-3 mt-md-0">
+      <a href="{% url 'challenges:student_my_challenges' %}" class="btn btn-nex-outline">
+        <i class="bi bi-arrow-left me-1"></i> My Challenges
+      </a>
+    </div>
+  </div>
+
+  <!-- Revoked Banner -->
+  {% if assignment.status == 'REVOKED' %}
+    <div class="alert alert-danger mb-4 shadow-sm">
+      <h5 class="fw-bold mb-1"><i class="bi bi-x-circle-fill me-2"></i>Assignment Access Revoked</h5>
+      <p class="small mb-0">
+        This assignment was revoked by the recruiting team on {{ assignment.revoked_at|date:"M d, Y" }}.
+        {% if assignment.revocation_reason %}
+          Reason: <em>"{{ assignment.revocation_reason }}"</em>
+        {% endif %}
+      </p>
+    </div>
+  {% endif %}
+
+  <!-- Deadline & Status Card -->
+  <div class="card shadow-sm border-0 mb-4 p-3 bg-white" style="border-radius: var(--radius-md);">
+    <div class="d-flex flex-wrap justify-content-between align-items-center">
+      <div class="d-flex align-items-center gap-3">
+        <div class="rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 44px; height: 44px; background-color: var(--navy);">
+          <i class="bi bi-clock-history fs-5"></i>
+        </div>
+        <div>
+          <div class="small text-muted fw-bold">Submission Deadline</div>
+          <div class="fw-bold fs-6 {% if assignment.is_deadline_passed %}text-danger{% else %}text-dark{% endif %}">
+            {{ assignment.deadline|date:"l, F d, Y" }} at {{ assignment.deadline|time:"h:i A" }}
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-2 mt-md-0 d-flex align-items-center gap-3">
+        <div>
+          <span class="badge {% if assignment.is_deadline_passed %}bg-danger{% else %}bg-dark{% endif %} p-2">
+            <i class="bi bi-hourglass-split me-1"></i> {{ assignment.time_remaining_display }}
+          </span>
+        </div>
+
+        {% if assignment.status == 'ASSIGNED' %}
+          <a href="{% url 'challenges:student_challenge_start' assignment.id %}" class="btn btn-nex-primary">
+            <i class="bi bi-play-circle-fill me-1"></i> Start Challenge
+          </a>
+        {% elif assignment.status == 'IN_PROGRESS' %}
+          <a href="{% url 'challenges:student_challenge_submit' assignment.id %}" class="btn btn-nex-primary">
+            <i class="bi bi-upload me-1"></i> Submit Solution
+          </a>
+        {% elif assignment.status == 'EVALUATED' %}
+          <a href="{% url 'challenges:student_challenge_feedback' assignment.id %}" class="btn btn-success">
+            <i class="bi bi-award-fill me-1"></i> View Evaluation Results
+          </a>
+        {% elif assignment.status == 'SUBMITTED' or assignment.status == 'UNDER_REVIEW' %}
+          {% if latest_submission %}
+            <a href="{% url 'challenges:student_submission_detail' latest_submission.id %}" class="btn btn-outline-secondary">
+              <i class="bi bi-check2-circle me-1"></i> View Submitted Solution
+            </a>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Main Briefing -->
+    <div class="col-lg-8">
+      
+      <!-- Problem Statement -->
+      <div class="card shadow-sm border-0 p-4 mb-4" style="border-radius: var(--radius-md);">
+        <h5 class="fw-bold mb-3" style="color: var(--navy);"><i class="bi bi-file-earmark-code-fill me-2"></i>Problem Statement</h5>
+        <div class="text-muted" style="white-space: pre-line; line-height: 1.7;">{{ challenge.problem_statement }}</div>
+      </div>
+
+      <!-- Technical Requirements & Constraints -->
+      {% if challenge.technical_requirements %}
+        <div class="card shadow-sm border-0 p-4 mb-4" style="border-radius: var(--radius-md);">
+          <h5 class="fw-bold mb-3" style="color: var(--navy);"><i class="bi bi-cpu-fill me-2"></i>Technical Requirements &amp; Stack Constraints</h5>
+          <div class="p-3 rounded" style="background-color: var(--cream-soft); border-left: 4px solid var(--navy);">
+            <p class="small mb-0" style="white-space: pre-line;">{{ challenge.technical_requirements }}</p>
+          </div>
+        </div>
+      {% endif %}
+
+      <!-- Input/Output Specs -->
+      {% if challenge.input_output_specs %}
+        <div class="card shadow-sm border-0 p-4 mb-4" style="border-radius: var(--radius-md);">
+          <h5 class="fw-bold mb-3" style="color: var(--navy);"><i class="bi bi-arrow-left-right me-2"></i>Input / Output Specifications &amp; Test Schemas</h5>
+          <div class="p-3 rounded bg-light border font-monospace small" style="white-space: pre-line;">
+            {{ challenge.input_output_specs }}
+          </div>
+        </div>
+      {% endif %}
+
+      <!-- Candidate Submission Instructions -->
+      {% if challenge.instructions %}
+        <div class="card shadow-sm border-0 p-4 mb-4" style="border-radius: var(--radius-md);">
+          <h5 class="fw-bold mb-3" style="color: var(--navy);"><i class="bi bi-list-check me-2"></i>Submission Instructions</h5>
+          <div class="small text-muted" style="white-space: pre-line;">{{ challenge.instructions }}</div>
+        </div>
+      {% endif %}
+
+    </div>
+
+    <!-- Right Sidebar: Constraints & Deliverables -->
+    <div class="col-lg-4">
+
+      <!-- Submission Guidelines -->
+      <div class="card shadow-sm border-0 p-4 mb-4" style="border-radius: var(--radius-md);">
+        <h6 class="fw-bold small text-muted text-uppercase mb-3"><i class="bi bi-info-circle me-1"></i>Assessment Guidelines</h6>
+        
+        <ul class="list-unstyled d-flex flex-column gap-3 small mb-0">
+          <li class="d-flex align-items-start gap-2">
+            <i class="bi bi-check-circle-fill text-success mt-1"></i>
+            <div>
+              <strong>Allowed Deliverables:</strong><br>
+              <span class="text-muted">{{ challenge.allowed_submission_formats }}</span>
+            </div>
+          </li>
+          <li class="d-flex align-items-start gap-2">
+            <i class="bi bi-check-circle-fill text-success mt-1"></i>
+            <div>
+              <strong>Max File Upload:</strong><br>
+              <span class="text-muted">{{ challenge.max_file_size_mb }} MB (ZIP or PDF)</span>
+            </div>
+          </li>
+          <li class="d-flex align-items-start gap-2">
+            <i class="bi bi-check-circle-fill text-success mt-1"></i>
+            <div>
+              <strong>Re-submissions:</strong><br>
+              <span class="text-muted">{% if challenge.allow_resubmission %}Allowed (multiple versions saved){% else %}Single Submission Only{% endif %}</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Supporting Attachments -->
+      {% if challenge.attachments.exists %}
+        <div class="card shadow-sm border-0 p-4 mb-4" style="border-radius: var(--radius-md);">
+          <h6 class="fw-bold small text-muted text-uppercase mb-3"><i class="bi bi-paperclip me-1"></i>Supporting Attachments</h6>
+          <div class="d-flex flex-column gap-2">
+            {% for att in challenge.attachments.all %}
+              <a href="{{ att.file.url }}" class="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-between" target="_blank">
+                <span class="text-truncate me-2"><i class="bi bi-download me-1"></i>{{ att.title }}</span>
+                <i class="bi bi-box-arrow-up-right small"></i>
+              </a>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      <!-- Reference Links -->
+      {% if challenge.reference_materials %}
+        <div class="card shadow-sm border-0 p-4" style="border-radius: var(--radius-md);">
+          <h6 class="fw-bold small text-muted text-uppercase mb-2"><i class="bi bi-bookmark-fill me-1"></i>Reference Resources</h6>
+          <p class="small text-muted mb-0" style="white-space: pre-line;">{{ challenge.reference_materials }}</p>
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+

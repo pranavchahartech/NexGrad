@@ -1,0 +1,395 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Developer & Partner API Documentation | {{ BRAND_NAME }}{% endblock %}
+
+{% block extra_css %}
+<style>
+  .api-hero {
+    background: linear-gradient(135deg, #082B4C 0%, #0F172A 100%);
+    padding: 60px 0 50px;
+    border-bottom: 2px solid #0284C7;
+    position: relative;
+    overflow: hidden;
+  }
+  .api-hero::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(2, 132, 199, 0.15) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .api-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(2, 132, 199, 0.2);
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    color: #38BDF8;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .api-card {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+    overflow: hidden;
+    margin-bottom: 28px;
+    transition: box-shadow 0.2s ease;
+  }
+  .api-card:hover {
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  }
+  .api-card-header {
+    background: #F8FAFC;
+    padding: 16px 20px;
+    border-bottom: 1px solid #E2E8F0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .method-badge {
+    background: #0284C7;
+    color: #FFFFFF;
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 6px;
+    letter-spacing: 0.04em;
+  }
+  .endpoint-path {
+    font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #0F172A;
+  }
+  .code-console {
+    background: #0B132B;
+    color: #E2E8F0;
+    border-radius: 8px;
+    padding: 16px;
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 0.85rem;
+    max-height: 420px;
+    overflow-y: auto;
+    position: relative;
+  }
+  .code-console pre {
+    margin: 0;
+    color: #A5F3FC;
+  }
+  .copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #FFFFFF;
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .copy-btn:hover {
+    background: #0284C7;
+    color: #FFFFFF;
+  }
+  .param-table th {
+    background: #F8FAFC;
+    color: #475569;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 12px 16px;
+  }
+  .param-table td {
+    padding: 12px 16px;
+    vertical-align: middle;
+    font-size: 0.88rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="api-hero text-white">
+  <div class="container position-relative">
+    <nav aria-label="breadcrumb" class="mb-3">
+      <ol class="breadcrumb small" style="--bs-breadcrumb-divider-color: rgba(255,255,255,0.4);">
+        <li class="breadcrumb-item"><a href="{% url 'core:home' %}" class="text-white-50 text-decoration-none">Home</a></li>
+        <li class="breadcrumb-item active text-white" aria-current="page">Developer & Partner API</li>
+      </ol>
+    </nav>
+    <div class="row align-items-center">
+      <div class="col-lg-8">
+        <div class="api-badge mb-3">
+          <i class="bi bi-cpu-fill"></i> Developer Hub & REST API v1
+        </div>
+        <h1 class="display-6 fw-bold mb-3">Enterprise Partner & Developer API</h1>
+        <p class="lead text-white-50 mb-0" style="font-size: 1.05rem;">
+          Connect your campus portals, enterprise applicant tracking systems (Workday, Greenhouse, Lever, Darwinbox), and custom applications to {{ BRAND_NAME }}'s verified engineering opportunities stream.
+        </p>
+      </div>
+      <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
+        <div class="d-inline-flex flex-column gap-2 text-start bg-dark bg-opacity-50 p-3 rounded-3 border border-secondary border-opacity-50">
+          <div class="small text-white-50"><i class="bi bi-shield-check text-success me-1"></i> Format: <strong>JSON / REST</strong></div>
+          <div class="small text-white-50"><i class="bi bi-activity text-info me-1"></i> Availability: <strong>99.98% SLA</strong></div>
+          <div class="small text-white-50"><i class="bi bi-lightning-charge text-warning me-1"></i> Latency: <strong>&lt; 45ms P99</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- API Details Container -->
+<div class="container my-5">
+  <div class="row g-4">
+    <!-- Main Content -->
+    <div class="col-lg-8">
+      <!-- Section: Overview -->
+      <div class="mb-5">
+        <h3 class="fw-bold text-navy mb-3">Public Opportunity Stream Specification</h3>
+        <p class="text-muted">
+          {{ BRAND_NAME }} provides a high-throughput, structured REST API endpoint delivering active engineering job vacancies, internships, compensation packages, and verified academic eligibility requirements in real time.
+        </p>
+      </div>
+
+      <!-- Endpoint Card: GET /jobs/api/opportunities/ -->
+      <div class="api-card">
+        <div class="api-card-header">
+          <div class="d-flex align-items-center gap-2">
+            <span class="method-badge">GET</span>
+            <span class="endpoint-path">/jobs/api/opportunities/</span>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-success-subtle text-success border border-success-subtle">Status: Active (v1)</span>
+            <a href="{% url 'jobs:api_opportunities' %}" target="_blank" class="btn btn-sm btn-outline-primary" style="font-size: 0.75rem;">
+              <i class="bi bi-box-arrow-up-right me-1"></i> Open Raw JSON
+            </a>
+          </div>
+        </div>
+
+        <div class="p-4">
+          <h6 class="fw-bold text-dark mb-2">Description</h6>
+          <p class="text-secondary small mb-4">
+            Fetches active engineering vacancies posted by verified recruiters on {{ BRAND_NAME }}. Includes job details, salary compensation bands, required technologies, and academic eligibility criteria.
+          </p>
+
+          <h6 class="fw-bold text-dark mb-3">Query Parameters</h6>
+          <div class="table-responsive mb-4">
+            <table class="table table-bordered param-table mb-0">
+              <thead>
+                <tr>
+                  <th>Parameter</th>
+                  <th>Type</th>
+                  <th>Default</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>limit</code></td>
+                  <td><span class="badge bg-light text-dark border">integer</span></td>
+                  <td><code>10</code></td>
+                  <td>Maximum number of opportunity records to retrieve (min: 1, max: 50).</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Interactive Live Console -->
+          <div class="p-3 bg-light rounded-3 border">
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+              <span class="fw-bold small text-navy"><i class="bi bi-play-circle-fill text-primary me-1"></i> Interactive Endpoint Console</span>
+              <div class="d-flex align-items-center gap-2">
+                <label for="limitParam" class="small text-muted mb-0">limit:</label>
+                <input type="number" id="limitParam" value="3" min="1" max="20" class="form-control form-control-sm" style="width: 70px;">
+                <button type="button" id="executeApiBtn" class="btn btn-sm btn-primary px-3">
+                  <i class="bi bi-send me-1"></i> Send Request
+                </button>
+              </div>
+            </div>
+
+            <div class="code-console">
+              <button type="button" class="copy-btn" id="copyCodeBtn" title="Copy to clipboard">
+                <i class="bi bi-clipboard me-1"></i> Copy
+              </button>
+              <pre id="apiOutputArea"><code>// Click "Send Request" above to test the live API endpoint...</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- JSON Response Schema -->
+      <div class="api-card">
+        <div class="p-4">
+          <h5 class="fw-bold text-navy mb-3"><i class="bi bi-filetype-json text-primary me-2"></i>Response Schema Breakdown</h5>
+          <p class="small text-muted mb-3">Each opportunity record returned in the <code>opportunities</code> array conforms to this standardized contract:</p>
+          <div class="table-responsive">
+            <table class="table table-sm table-striped small mb-0">
+              <thead>
+                <tr class="text-muted">
+                  <th>Field Key</th>
+                  <th>Type</th>
+                  <th>Example</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>id</code></td>
+                  <td><code>integer</code></td>
+                  <td><code>101</code></td>
+                  <td>Unique database primary key identifier for the job vacancy.</td>
+                </tr>
+                <tr>
+                  <td><code>title</code></td>
+                  <td><code>string</code></td>
+                  <td><code>"Junior Backend Engineer"</code></td>
+                  <td>Official job vacancy title designated by the hiring organization.</td>
+                </tr>
+                <tr>
+                  <td><code>company</code></td>
+                  <td><code>string</code></td>
+                  <td><code>"Datadog"</code></td>
+                  <td>Registered hiring company name.</td>
+                </tr>
+                <tr>
+                  <td><code>location</code></td>
+                  <td><code>string</code></td>
+                  <td><code>"Bengaluru, India"</code></td>
+                  <td>Geographical deployment base and work model.</td>
+                </tr>
+                <tr>
+                  <td><code>salary_range</code></td>
+                  <td><code>string</code></td>
+                  <td><code>"₹10,00,000 - ₹16,00,000 P.A."</code></td>
+                  <td>Published compensation band.</td>
+                </tr>
+                <tr>
+                  <td><code>eligible_branches</code></td>
+                  <td><code>string</code></td>
+                  <td><code>"CSE, IT"</code></td>
+                  <td>Comma-separated eligible engineering branches.</td>
+                </tr>
+                <tr>
+                  <td><code>min_cgpa</code></td>
+                  <td><code>string</code></td>
+                  <td><code>"7.50"</code></td>
+                  <td>Minimum academic CGPA cutoff requirement.</td>
+                </tr>
+                <tr>
+                  <td><code>skills</code></td>
+                  <td><code>array[string]</code></td>
+                  <td><code>["Python", "Docker"]</code></td>
+                  <td>Required technology competencies and framework tags.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar / Integration Info -->
+    <div class="col-lg-4">
+      <div class="sticky-top" style="top: 100px;">
+        <!-- Enterprise Card -->
+        <div class="api-card p-4">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <div class="p-2 bg-primary bg-opacity-10 rounded-2 text-primary">
+              <i class="bi bi-buildings-fill fs-5"></i>
+            </div>
+            <div>
+              <h6 class="fw-bold text-navy mb-0">Enterprise ATS Sync</h6>
+              <span class="small text-muted">Recruiter Integrations</span>
+            </div>
+          </div>
+          <p class="small text-secondary mb-3">
+            Recruiting partners can configure automated webhooks to sync candidates, assessment scores, and interview schedules directly with:
+          </p>
+          <ul class="list-unstyled small text-secondary mb-4">
+            <li class="mb-2"><i class="bi bi-check2-circle text-success me-2"></i><strong>Greenhouse ATS</strong> Webhook Ingestion</li>
+            <li class="mb-2"><i class="bi bi-check2-circle text-success me-2"></i><strong>Workday Recruiting</strong> Candidate Sync</li>
+            <li class="mb-2"><i class="bi bi-check2-circle text-success me-2"></i><strong>Lever Talent Cloud</strong> Direct Export</li>
+            <li><i class="bi bi-check2-circle text-success me-2"></i><strong>Darwinbox & BambooHR</strong> Connectors</li>
+          </ul>
+          <a href="{% url 'core:for_recruiters' %}" class="btn btn-outline-primary btn-sm w-100">
+            Visit Recruiter Portal
+          </a>
+        </div>
+
+        <!-- Security & Rate Limits -->
+        <div class="api-card p-4">
+          <h6 class="fw-bold text-navy mb-3"><i class="bi bi-shield-lock-fill text-primary me-2"></i>Platform Policies</h6>
+          <div class="d-flex flex-column gap-3 small text-secondary">
+            <div class="d-flex align-items-start gap-2">
+              <i class="bi bi-speedometer2 text-info mt-1"></i>
+              <div>
+                <strong>Rate Limiting:</strong> Public endpoints are limited to 60 requests per minute per IP to protect server health.
+              </div>
+            </div>
+            <div class="d-flex align-items-start gap-2">
+              <i class="bi bi-lock-fill text-warning mt-1"></i>
+              <div>
+                <strong>HTTPS Only:</strong> In production environments, all endpoints enforce TLS 1.3 encryption.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const executeBtn = document.getElementById('executeApiBtn');
+    const limitInput = document.getElementById('limitParam');
+    const outputArea = document.getElementById('apiOutputArea');
+    const copyBtn = document.getElementById('copyCodeBtn');
+
+    function runEndpoint() {
+      const limitVal = parseInt(limitInput.value) || 3;
+      outputArea.innerHTML = '<code>// Loading live opportunities from database...</code>';
+
+      fetch(`{% url 'jobs:api_opportunities' %}?limit=${limitVal}`)
+        .then(response => response.json())
+        .then(data => {
+          outputArea.innerHTML = `<code>${JSON.stringify(data, null, 2)}</code>`;
+        })
+        .catch(err => {
+          outputArea.innerHTML = `<code>// Request failed: ${err.message}</code>`;
+        });
+    }
+
+    executeBtn.addEventListener('click', runEndpoint);
+
+    // Initial load
+    runEndpoint();
+
+    copyBtn.addEventListener('click', function() {
+      const textToCopy = outputArea.innerText;
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        copyBtn.innerHTML = '<i class="bi bi-check2 me-1"></i> Copied!';
+        setTimeout(() => {
+          copyBtn.innerHTML = '<i class="bi bi-clipboard me-1"></i> Copy';
+        }, 2000);
+      });
+    });
+  });
+</script>
+{% endblock %}
+
