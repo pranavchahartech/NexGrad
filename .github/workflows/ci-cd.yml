@@ -63,21 +63,13 @@ jobs:
         run: |
           ansible-galaxy collection install ansible.posix community.postgresql community.aws amazon.aws
 
-      - name: Verify Ansible Inventory
+      - name: Verify Ansible Automation Suite
+        working-directory: ansible
         run: |
-          ansible-inventory -i ansible/inventory/hosts.ini --graph
-
-      - name: Syntax Check site.yml Playbook
-        run: |
-          ansible-playbook -i ansible/inventory/hosts.ini ansible/playbooks/site.yml --syntax-check
-
-      - name: Syntax Check deploy.yml Playbook
-        run: |
-          ansible-playbook -i ansible/inventory/hosts.ini ansible/playbooks/deploy.yml --syntax-check
-
-      - name: Syntax Check self_healing.yml Playbook
-        run: |
-          ansible-playbook -i ansible/inventory/hosts.ini ansible/playbooks/self_healing.yml --syntax-check
+          ansible-inventory -i inventory/hosts.ini --graph
+          ansible-playbook -i inventory/hosts.ini playbooks/site.yml --syntax-check
+          ansible-playbook -i inventory/hosts.ini playbooks/deploy.yml --syntax-check
+          ansible-playbook -i inventory/hosts.ini playbooks/self_healing.yml --syntax-check
 
   # ============================================================================
   # 3. Django Backend & Gemini API Validation
