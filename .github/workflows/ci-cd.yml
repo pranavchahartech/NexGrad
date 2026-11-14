@@ -1,0 +1,128 @@
+name: NexGrad CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  # ============================================================================
+  # 1. Terraform Infrastructure Validation
+  # ============================================================================
+  terraform:
+    name: Terraform Format & Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.0
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive terraform/
+
+      - name: Validate Root Infrastructure
+        run: |
+          cd terraform
+          terraform init -backend=false
+          terraform validate
+
+      - name: Validate Production Environment
+        run: |
+          cd terraform/environments/production
+          terraform init -backend=false
+          terraform validate
+
+  # ============================================================================
+  # 2. Ansible Automation & Playbook Validation
+  # ============================================================================
+  ansible:
+    name: Ansible Syntax & Inventory Verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install Ansible & AWS SDK
+        run: |
+          python -m pip install --upgrade pip
+          pip install ansible-core boto3 botocore
+
+      - name: Install Ansible Collections
+        run: |
+          ansible-galaxy collection install ansible.posix community.postgresql community.aws amazon.aws
+
+      - name: Verify Ansible Inventory
+        run: |
+          ansible-inventory -i ansible/inventory/hosts.ini --graph
+
+      - name: Syntax Check site.yml Playbook
+        run: |
+          ansible-playbook -i ansible/inventory/hosts.ini ansible/playbooks/site.yml --syntax-check
+
+      - name: Syntax Check deploy.yml Playbook
+        run: |
+          ansible-playbook -i ansible/inventory/hosts.ini ansible/playbooks/deploy.yml --syntax-check
+
+      - name: Syntax Check self_healing.yml Playbook
+        run: |
+          ansible-playbook -i ansible/inventory/hosts.ini ansible/playbooks/self_healing.yml --syntax-check
+
+  # ============================================================================
+  # 3. Django Backend & Gemini API Validation
+  # ============================================================================
+  backend:
+    name: Django System Checks & Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+
+      - name: Run Django System Checks
+        run: |
+          cd backend
+          python manage.py check
+
+      - name: Run Automated Tests
+        run: |
+          cd backend
+          python manage.py test core
+
+  # ============================================================================
+  # 4. Frontend Asset & Nginx Configuration Validation
+  # ============================================================================
+  frontend:
+    name: Frontend Asset & Template Integrity
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Verify Key Templates & Static Assets
+        run: |
+          test -f frontend/templates/base.html
+          test -f frontend/templates/core/home.html
+          test -f frontend/static/css/base.css
+          echo "All critical frontend templates and static assets verified."
