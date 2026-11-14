@@ -31,7 +31,13 @@ variable "public_subnet_cidrs" {
 variable "instance_type" {
   description = "EC2 instance size for web and application servers"
   type        = string
-  default     = "t3.medium"
+  default     = "t3.micro"
+}
+
+variable "volume_size" {
+  description = "EBS root volume size in GB for EC2 instances"
+  type        = number
+  default     = 8
 }
 
 variable "db_name" {

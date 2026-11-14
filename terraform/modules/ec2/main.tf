@@ -23,7 +23,7 @@ resource "aws_instance" "frontend" {
   associate_public_ip_address = true
 
   root_block_device {
-    volume_size           = 30
+    volume_size           = var.volume_size
     volume_type           = "gp3"
     delete_on_termination = true
     encrypted             = true
@@ -57,7 +57,7 @@ resource "aws_instance" "backend" {
   associate_public_ip_address = true
 
   root_block_device {
-    volume_size           = 30
+    volume_size           = var.volume_size
     volume_type           = "gp3"
     delete_on_termination = true
     encrypted             = true
@@ -91,7 +91,7 @@ resource "aws_instance" "management" {
   associate_public_ip_address = true
 
   root_block_device {
-    volume_size           = 30
+    volume_size           = var.volume_size
     volume_type           = "gp3"
     delete_on_termination = true
     encrypted             = true

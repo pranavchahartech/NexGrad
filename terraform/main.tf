@@ -30,6 +30,7 @@ module "ec2" {
   project_name            = var.project_name
   environment             = var.environment
   instance_type           = var.instance_type
+  volume_size             = var.volume_size
   public_subnet_id        = module.vpc.public_subnet_ids[0]
   backend_subnet_id       = module.vpc.public_subnet_ids[0]
   management_subnet_id    = module.vpc.public_subnet_ids[0]
