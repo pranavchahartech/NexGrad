@@ -59,7 +59,9 @@
 
               <!-- Title -->
               <h5 class="fw-bold mb-2">
-                <span style="color: var(--navy);">{{ intern.clean_title }}</span>
+                <a href="{% url 'jobs:internship_detail' intern.id %}" class="text-decoration-none" style="color: var(--navy);">
+                  {{ intern.clean_title }}
+                </a>
               </h5>
 
               <!-- Distinct Structured Attributes -->
@@ -88,8 +90,11 @@
 
             <!-- Card Footer -->
             <div class="d-flex justify-content-between align-items-center pt-3 mt-auto" style="border-top: 1px solid var(--border-subtle);">
-              <small class="text-muted"><i class="bi bi-mortarboard me-1"></i>Eligible: <strong>{{ intern.eligible_branches }}</strong></small>
-              <a href="{% url 'jobs:list' %}" class="btn btn-sm btn-nex-primary">Apply Now</a>
+              <small class="text-muted"><i class="bi bi-mortarboard me-1"></i><strong>{{ intern.eligible_branches }}</strong></small>
+              <div class="d-flex gap-2">
+                <a href="{% url 'jobs:internship_detail' intern.id %}" class="btn btn-sm btn-outline-secondary">Details</a>
+                <a href="{% url 'applications:apply_to_internship' intern.id %}" class="btn btn-sm btn-nex-primary">Apply Now</a>
+              </div>
             </div>
           </div>
         </div>

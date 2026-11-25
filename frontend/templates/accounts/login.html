@@ -36,6 +36,59 @@
           <span class="mx-2 text-muted">&bull;</span>
           <a href="{% url 'accounts:register_recruiter' %}" class="small fw-bold text-decoration-none" style="color: var(--slate);">Register as Recruiter</a>
         </div>
+
+        <!-- Quick Demo Accounts for Presentation & Testing -->
+        <div class="mt-4 pt-3 border-top">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;">
+              <i class="bi bi-key-fill text-primary me-1"></i> Quick Test Accounts
+            </span>
+            <span class="badge bg-light text-dark border" style="font-size: 0.68rem;">Click to Autofill</span>
+          </div>
+
+          <div class="d-flex flex-column gap-2 small">
+            <button type="button" class="btn btn-sm btn-outline-secondary text-start py-1 px-2 d-flex justify-content-between align-items-center" onclick="autofillLogin('recruiter_google', 'Google#2026!Cloud')">
+              <div>
+                <strong>Google Cloud Recruiter</strong>
+                <div class="text-muted" style="font-size: 0.72rem;">User: <code>recruiter_google</code></div>
+              </div>
+              <span class="badge bg-primary text-white">Recruiter</span>
+            </button>
+
+            <button type="button" class="btn btn-sm btn-outline-secondary text-start py-1 px-2 d-flex justify-content-between align-items-center" onclick="autofillLogin('recruiter_novus', 'Novus#2026!Robotics')">
+              <div>
+                <strong>Novus Robotics Recruiter</strong>
+                <div class="text-muted" style="font-size: 0.72rem;">User: <code>recruiter_novus</code></div>
+              </div>
+              <span class="badge bg-primary text-white">Recruiter</span>
+            </button>
+
+            <button type="button" class="btn btn-sm btn-outline-secondary text-start py-1 px-2 d-flex justify-content-between align-items-center" onclick="autofillLogin('recruiter_msft', 'Azure#2026!Recruit')">
+              <div>
+                <strong>Microsoft Technology Recruiter</strong>
+                <div class="text-muted" style="font-size: 0.72rem;">User: <code>recruiter_msft</code></div>
+              </div>
+              <span class="badge bg-primary text-white">Recruiter</span>
+            </button>
+
+            <button type="button" class="btn btn-sm btn-outline-secondary text-start py-1 px-2 d-flex justify-content-between align-items-center" onclick="autofillLogin('recruiter_nexpay', 'FinTech#2026!Pay')">
+              <div>
+                <strong>NexPay FinTech Recruiter</strong>
+                <div class="text-muted" style="font-size: 0.72rem;">User: <code>recruiter_nexpay</code></div>
+              </div>
+              <span class="badge bg-primary text-white">Recruiter</span>
+            </button>
+          </div>
+        </div>
+
+        <script>
+          function autofillLogin(u, p) {
+            var uInput = document.querySelector('input[name="username"]') || document.getElementById('id_username');
+            var pInput = document.querySelector('input[name="password"]') || document.getElementById('id_password');
+            if (uInput) uInput.value = u;
+            if (pInput) pInput.value = p;
+          }
+        </script>
       </div>
     </div>
   </div>

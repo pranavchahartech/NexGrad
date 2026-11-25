@@ -6,6 +6,8 @@ app_name = 'recruiters'
 urlpatterns = [
     # Recruiter Dashboard
     path('dashboard/', views.dashboard, name='dashboard'),
+    path('post-internship/', views.post_internship, name='post_internship'),
+    path('post-job/', views.post_job, name='post_job'),
     
     # Company Profile & Public Listings
     path('company/<slug:company_slug>/', views.company_detail, name='company_detail'),

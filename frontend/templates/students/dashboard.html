@@ -5,119 +5,929 @@
 
 {% block content %}
 <div class="container py-4 py-md-5">
-  <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-4">
-    <div>
-      <h3 class="fw-bold mb-1" style="color: var(--navy);">Welcome, {{ user.first_name|default:user.username }}</h3>
-      <p class="text-muted small mb-0">{{ profile.degree }} in {{ profile.get_branch_display }} &bull; Batch of {{ profile.graduation_year }}</p>
+
+  <!-- ======================================================================
+       BIG RESUME NOTIFICATION (New Users & Students without CV)
+       ====================================================================== -->
+  {% if show_resume_prompt %}
+  <div id="bigResumePromptBanner" class="card border-0 shadow-sm mb-4 overflow-hidden resume-prompt-card" style="border-radius: var(--radius-lg); border-left: 6px solid #2563EB !important;">
+    <div class="card-body p-4 p-md-5">
+      <div class="row align-items-center g-4">
+        <div class="col-md-auto text-center text-md-start">
+          <div class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 72px; height: 72px; background: rgba(37, 99, 235, 0.12); color: #2563EB;">
+            <i class="bi bi-file-earmark-arrow-up-fill" style="font-size: 2.2rem;"></i>
+          </div>
+        </div>
+        <div class="col-md">
+          <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+            <span class="badge bg-primary text-white px-2 py-1" style="font-size: 0.75rem; letter-spacing: 0.04em;">
+              <i class="bi bi-stars me-1"></i>ACTION RECOMMENDED
+            </span>
+            <span class="badge" style="background-color: var(--sage); color: var(--navy); font-size: 0.75rem; font-weight: 700;">
+              +15% Profile Completion
+            </span>
+            {% if is_new_user %}
+            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1" style="font-size: 0.75rem;">
+              <i class="bi bi-person-check-fill me-1"></i>New Account Created
+            </span>
+            {% endif %}
+          </div>
+          <h4 class="fw-bold mb-2">Upload Your Resume / CV to Complete Your Profile</h4>
+          <p class="text-muted mb-0" style="max-width: 750px; font-size: 0.96rem; line-height: 1.55;">
+            Welcome to NexGrad! Verified hiring partners and our <strong>Novus AI matching engine</strong> evaluate your technical CV to recommend personalized career roles, score your eligibility, and unlock private recruitment assessments.
+          </p>
+        </div>
+        <div class="col-12 col-md-auto">
+          <div class="d-flex flex-column flex-sm-row flex-md-column gap-2">
+            <button type="button" class="btn btn-primary px-4 py-2 fw-semibold d-inline-flex align-items-center justify-content-center shadow-sm" data-bs-toggle="modal" data-bs-target="#uploadResumeModal" style="background-color: #2563EB; border-color: #2563EB;">
+              <i class="bi bi-cloud-arrow-up-fill me-2 fs-5"></i> Upload Resume Now
+            </button>
+            <button type="button" id="skipResumePromptBtn" class="btn btn-outline-secondary px-3 py-2 fw-medium d-inline-flex align-items-center justify-content-center">
+              <i class="bi bi-clock-history me-1"></i> Skip / Upload Later
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
-    <div>
-      <span class="badge" style="background-color: var(--sage); color: var(--navy); font-size: 0.9rem;">
-        Profile Completion: {{ profile.completion_percentage }}%
-      </span>
+  </div>
+  {% endif %}
+
+  <!-- ======================================================================
+       STUDENT WORKSPACE HERO & IDENTIFICATION (Symmetrical 3-Column Layout)
+       ====================================================================== -->
+  <div class="student-hero-banner mb-4">
+    <div class="row g-4 align-items-center">
+
+      <!-- Column 1: Student Avatar, Name, Degree & Contact Meta (col-lg-5) -->
+      <div class="col-lg-5">
+        <div class="d-flex align-items-start gap-3">
+          <div class="position-relative flex-shrink-0">
+            {% if profile.profile_picture %}
+              <img src="{{ profile.profile_picture.url }}" alt="{{ user.username }}" class="rounded-circle shadow border" style="width: 72px; height: 72px; object-fit: cover; border-color: #3B82F6 !important;">
+            {% else %}
+              <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow" style="width: 72px; height: 72px; font-size: 1.85rem; background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);">
+                {{ user.username|slice:":1"|upper }}
+              </div>
+            {% endif %}
+            <span class="position-absolute bottom-0 end-0 p-1 bg-success border border-2 border-dark rounded-circle" title="Active Engineering Student"></span>
+          </div>
+
+          <div class="flex-grow-1 min-w-0">
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+              <h3 class="hero-title mb-0 text-truncate">{{ user.get_full_name|default:user.username }}</h3>
+              <span class="badge bg-primary text-white" style="font-size: 0.72rem; letter-spacing: 0.02em;">
+                <i class="bi bi-mortarboard-fill me-1"></i>Engineering Student
+              </span>
+            </div>
+
+            {% if profile.degree or profile.branch or profile.college_name or profile.institution %}
+              <p class="text-muted small mb-2 text-truncate">
+                <span class="fw-semibold text-primary">{% if profile.degree %}{{ profile.degree }}{% endif %}{% if profile.branch %} in {{ profile.branch }}{% endif %}</span>
+                {% if profile.display_college %} &bull; {{ profile.display_college }}{% endif %}
+                {% if profile.graduation_year %} &bull; Class of {{ profile.graduation_year }}{% endif %}
+              </p>
+            {% else %}
+              <p class="text-muted small mb-2">
+                <i class="bi bi-info-circle me-1 text-primary"></i>Profile setup incomplete.
+                <a href="{% url 'students:edit_profile' %}" class="fw-semibold text-primary">Add details &rarr;</a>
+              </p>
+            {% endif %}
+
+            <div class="d-flex flex-wrap align-items-center gap-2">
+              <span class="student-hero-chip" title="Email Address">
+                <i class="bi bi-envelope-fill text-primary"></i> {{ user.email }}
+              </span>
+              {% if profile.display_phone %}
+                <span class="student-hero-chip" title="Phone">
+                  <i class="bi bi-telephone-fill text-success"></i> {{ profile.display_phone }}
+                </span>
+              {% endif %}
+              {% if profile.location %}
+                <span class="student-hero-chip" title="City/Region">
+                  <i class="bi bi-geo-alt-fill text-danger"></i> {{ profile.location }}
+                </span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Column 2: Profile Strength & Readiness Box (col-lg-3 col-md-6) -->
+      <div class="col-lg-3 col-md-6">
+        <div class="student-hero-progress-box shadow-sm">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="small fw-bold text-uppercase" style="letter-spacing: 0.05em; font-size: 0.75rem;">Profile Strength</span>
+            <span class="badge bg-primary text-white fw-bold px-2 py-1" style="font-size: 0.82rem;">{{ profile.completion_percentage }}%</span>
+          </div>
+          <div class="progress mb-2" style="height: 8px; border-radius: 999px; background: rgba(148, 163, 184, 0.2);">
+            <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: {{ profile.completion_percentage }}%;" aria-valuenow="{{ profile.completion_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
+          <div class="d-flex justify-content-between align-items-center text-muted" style="font-size: 0.75rem;">
+            {% if not has_resume %}
+              <span class="text-warning"><i class="bi bi-exclamation-circle me-1"></i>+15% Upload CV</span>
+            {% elif not profile.cgpa or not profile.college_name %}
+              <span class="text-info"><i class="bi bi-pencil me-1"></i>Add Academics</span>
+            {% else %}
+              <span class="text-success"><i class="bi bi-check2-circle me-1"></i>Details Verified</span>
+            {% endif %}
+            <span>Readiness: <strong class="text-primary">{{ career_readiness_score }}%</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Column 3: Action Buttons Equally Sized & Spread (col-lg-4 col-md-6) -->
+      <div class="col-lg-4 col-md-6">
+        <div class="d-flex flex-column gap-2 h-100 justify-content-center">
+          <div class="row g-2">
+            <div class="col-6">
+              <a href="{% url 'students:edit_profile' %}" class="btn btn-outline-primary student-hero-action-btn w-100 shadow-sm">
+                <i class="bi bi-pencil-square"></i>
+                <span>Edit Profile</span>
+              </a>
+            </div>
+            <div class="col-6">
+              <a href="{% url 'ai_assistant:workspace' %}" class="btn btn-primary student-hero-action-btn w-100 shadow-sm text-white" style="background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%); border: none;">
+                <img src="{% static 'images/novus_bot.png' %}" alt="Novus" style="width: 20px; height: 20px; object-fit: contain;">
+                <span>Novus AI</span>
+              </a>
+            </div>
+            <div class="col-12">
+              {% if has_resume %}
+                <a href="{% url 'students:view_resume' latest_resume.id %}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-secondary student-hero-action-btn w-100 small shadow-sm" style="height: 38px;">
+                  <i class="bi bi-file-earmark-pdf-fill text-danger"></i>
+                  <span class="text-truncate">View Active CV ({{ latest_resume.title|truncatechars:22 }})</span>
+                </a>
+              {% else %}
+                <button type="button" class="btn btn-outline-warning student-hero-action-btn w-100 small shadow-sm" data-bs-toggle="modal" data-bs-target="#uploadResumeModal" style="height: 38px;">
+                  <i class="bi bi-cloud-arrow-up-fill"></i>
+                  <span>Upload Resume Now (+15%)</span>
+                </button>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
-  <div class="row g-4">
-    <!-- Profile & Metrics -->
-    <div class="col-lg-4">
-      <!-- Novus AI Career Companion Launcher Card -->
-      <div class="card p-3 shadow-sm border-0 mb-4" style="border-radius: var(--radius-md); background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%); border-left: 4px solid #2563EB !important;">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <div class="d-flex align-items-center gap-2">
-            <img src="{% static 'images/novus_bot.png' %}" alt="Novus AI" style="width: 28px; height: 28px; object-fit: contain;">
-            <h6 class="fw-bold mb-0" style="color: var(--navy);">Novus AI Career Companion</h6>
+  <!-- ======================================================================
+       TOP QUICK STATS & METRICS BAR (4 Balanced Cards)
+       ====================================================================== -->
+  <div class="row g-3 g-md-4 mb-4">
+    <!-- Stat 1: Applications -->
+    <div class="col-sm-6 col-xl-3">
+      <div class="workspace-stat-card">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div>
+            <div class="text-muted small fw-semibold text-uppercase" style="letter-spacing: 0.04em;">Applications</div>
+            <h3 class="fw-bold my-1" style="color: var(--navy);">{{ applications_count }}</h3>
           </div>
-          <span class="badge bg-primary-subtle text-primary border border-primary-subtle" style="font-size: 0.72rem;">Gemini AI</span>
+          <div class="stat-icon-wrap" style="background: rgba(37, 99, 235, 0.12); color: #2563EB;">
+            <i class="bi bi-send-check-fill"></i>
+          </div>
         </div>
-        <p class="small text-muted mb-3">Personalized roadmaps, skill gap analysis, job matching, and AI mock interviews.</p>
-        <a href="{% url 'ai_assistant:workspace' %}" class="btn btn-sm btn-primary text-white d-inline-flex align-items-center gap-1" style="background-color: #2563EB; border: none;">
-          <i class="bi bi-chat-dots-fill me-1"></i> Launch Novus Workspace
-        </a>
-      </div>
-
-      <!-- Private Recruiter Challenges Card -->
-      <div class="card p-3 shadow-sm border-0 mb-4" style="border-radius: var(--radius-md); background: linear-gradient(135deg, #f0fdfb 0%, #ffffff 100%); border-left: 4px solid var(--navy) !important;">
-        <div class="d-flex justify-content-between align-items-center mb-1">
-          <h6 class="fw-bold mb-0" style="color: var(--navy);"><i class="bi bi-shield-check me-1"></i>My Selected Challenges</h6>
-          <span class="badge" style="background-color: var(--sage); color: var(--navy);">Private</span>
+        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+          {% if interview_count %}
+            <span class="badge bg-success-subtle text-success border border-success-subtle font-monospace">
+              <i class="bi bi-calendar2-check me-1"></i>{{ interview_count }} In Progress
+            </span>
+          {% else %}
+            <span class="text-muted small">Tracking Active Roles</span>
+          {% endif %}
+          <a href="{% url 'jobs:list' %}" class="small text-primary text-decoration-none fw-semibold">Browse &rarr;</a>
         </div>
-        <p class="small text-muted mb-3">View and solve technical assessments assigned exclusively to you by recruiters.</p>
-        <a href="{% url 'challenges:student_my_challenges' %}" class="btn btn-sm btn-nex-primary">
-          <i class="bi bi-code-square me-1"></i> View My Challenges
-        </a>
-      </div>
-
-      <div class="card p-4 shadow-sm border-0 mb-4" style="border-radius: var(--radius-md);">
-        <h5 class="fw-bold mb-3" style="color: var(--navy);"><i class="bi bi-person-badge me-2"></i>Academic Profile</h5>
-        <div class="small mb-2"><strong>Institution:</strong> {{ profile.institution.name|default:"Not Linked" }}</div>
-        <div class="small mb-2"><strong>CGPA:</strong> {{ profile.cgpa }} / 10.0</div>
-        <div class="small mb-2"><strong>Location:</strong> {{ profile.location|default:"Not Specified" }}</div>
-        <hr>
-        <div class="small mb-2"><strong>Headline:</strong> {{ profile.headline }}</div>
-      </div>
-
-      <div class="card p-4 shadow-sm border-0" style="border-radius: var(--radius-md);">
-        <h5 class="fw-bold mb-3" style="color: var(--navy);"><i class="bi bi-file-earmark-pdf me-2"></i>Resumes</h5>
-        {% if resumes %}
-          <ul class="list-unstyled mb-0">
-            {% for r in resumes %}
-              <li class="small py-1 d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-file-pdf text-danger me-1"></i>{{ r.title }}</span>
-                {% if r.is_default %}<span class="badge bg-success">Default</span>{% endif %}
-              </li>
-            {% endfor %}
-          </ul>
-        {% else %}
-          <p class="text-muted small mb-0">No resumes uploaded yet.</p>
-        {% endif %}
       </div>
     </div>
 
-    <!-- Projects & Skills -->
-    <div class="col-lg-8">
-      <div class="card p-4 shadow-sm border-0 mb-4" style="border-radius: var(--radius-md);">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="fw-bold mb-0" style="color: var(--navy);"><i class="bi bi-code-slash me-2"></i>Verified Engineering Projects</h5>
+    <!-- Stat 2: Challenges -->
+    <div class="col-sm-6 col-xl-3">
+      <div class="workspace-stat-card">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div>
+            <div class="text-muted small fw-semibold text-uppercase" style="letter-spacing: 0.04em;">Private Challenges</div>
+            <h3 class="fw-bold my-1" style="color: var(--navy);">{{ challenges_count }}</h3>
+          </div>
+          <div class="stat-icon-wrap" style="background: rgba(16, 185, 129, 0.12); color: #10B981;">
+            <i class="bi bi-shield-check"></i>
+          </div>
         </div>
-        {% if projects %}
-          <div class="row g-3">
-            {% for p in projects %}
-              <div class="col-12">
-                <div class="p-3 border rounded" style="background-color: var(--cream-soft);">
-                  <div class="d-flex justify-content-between">
-                    <h6 class="fw-bold mb-1" style="color: var(--navy);">{{ p.title }}</h6>
-                    {% if p.repo_url %}
-                      <a href="{{ p.repo_url }}" target="_blank" class="small text-decoration-none" style="color: var(--slate);"><i class="bi bi-github me-1"></i>Repository</a>
-                    {% endif %}
+        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+          {% if pending_challenges_count %}
+            <span class="badge bg-warning-subtle text-warning border border-warning-subtle font-monospace">
+              <i class="bi bi-hourglass-split me-1"></i>{{ pending_challenges_count }} Action Required
+            </span>
+          {% else %}
+            <span class="text-muted small">Assigned by Recruiters</span>
+          {% endif %}
+          <a href="{% url 'challenges:student_my_challenges' %}" class="small text-primary text-decoration-none fw-semibold">View &rarr;</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stat 3: Skills -->
+    <div class="col-sm-6 col-xl-3">
+      <div class="workspace-stat-card">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div>
+            <div class="text-muted small fw-semibold text-uppercase" style="letter-spacing: 0.04em;">Technical Skills</div>
+            <h3 class="fw-bold my-1" style="color: var(--navy);">{{ skills.count }}</h3>
+          </div>
+          <div class="stat-icon-wrap" style="background: rgba(147, 51, 234, 0.12); color: #9333EA;">
+            <i class="bi bi-patch-check-fill"></i>
+          </div>
+        </div>
+        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+          <span class="text-muted small">Verified Competencies</span>
+          <button type="button" class="btn btn-link p-0 small text-primary text-decoration-none fw-semibold" data-bs-toggle="modal" data-bs-target="#addSkillModal">
+            + Add Skill
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stat 4: Career Readiness Index -->
+    <div class="col-sm-6 col-xl-3">
+      <div class="workspace-stat-card">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div>
+            <div class="text-muted small fw-semibold text-uppercase" style="letter-spacing: 0.04em;">Readiness Index</div>
+            <h3 class="fw-bold my-1" style="color: var(--navy);">{{ career_readiness_score }}%</h3>
+          </div>
+          <div class="stat-icon-wrap" style="background: rgba(245, 158, 11, 0.12); color: #F59E0B;">
+            <i class="bi bi-stars"></i>
+          </div>
+        </div>
+        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+          <span class="badge bg-primary-subtle text-primary border border-primary-subtle">Novus AI Audited</span>
+          <a href="{% url 'ai_assistant:workspace' %}" class="small text-primary text-decoration-none fw-semibold">Consult &rarr;</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MAIN CONTENT: BALANCED 2-COLUMN GRID (col-lg-8 & col-lg-4)
+       ====================================================================== -->
+  <div class="row g-4">
+
+    <!-- --------------------------------------------------------------------
+         LEFT MAIN PANEL (col-lg-8): Applications, Challenges, Projects, Jobs
+         -------------------------------------------------------------------- -->
+    <div class="col-lg-8">
+
+      <!-- 1. Active Job & Internship Applications Tracker -->
+      <div class="workspace-section-card p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-briefcase-fill text-primary fs-5"></i>
+            <h5 class="fw-bold mb-0" style="color: var(--navy);">My Applications Tracker</h5>
+            <span class="badge bg-secondary-subtle text-secondary">{{ applications_count }}</span>
+          </div>
+          <a href="{% url 'jobs:list' %}" class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-search me-1"></i> Browse Jobs
+          </a>
+        </div>
+
+        {% if recent_applications %}
+          <div class="d-flex flex-column gap-2">
+            {% for app in recent_applications %}
+              <div class="application-row p-3 border rounded d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3">
+                <div class="d-flex align-items-center gap-3">
+                  <div class="rounded-3 d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 44px; height: 44px; background: rgba(37, 99, 235, 0.1); color: #2563EB; font-size: 1.1rem; flex-shrink: 0;">
+                    {{ app.company_name|slice:":1"|upper }}
                   </div>
-                  <p class="small text-muted mb-2">{{ p.description }}</p>
-                  <small class="text-muted"><strong>Tech Stack:</strong> {{ p.technologies }}</small>
+                  <div>
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                      <h6 class="fw-bold mb-0" style="color: var(--navy);">{{ app.role_title }}</h6>
+                      {% if app.internship %}
+                        <span class="badge" style="background-color: var(--sage); color: var(--navy); font-size: 0.7rem;">
+                          <i class="bi bi-mortarboard-fill me-1"></i>Internship
+                        </span>
+                      {% else %}
+                        <span class="badge" style="background-color: var(--navy); color: #fff; font-size: 0.7rem;">
+                          <i class="bi bi-briefcase-fill me-1"></i>Job
+                        </span>
+                      {% endif %}
+                    </div>
+                    <div class="text-muted small d-flex flex-wrap align-items-center gap-2">
+                      <span class="fw-semibold text-secondary">{{ app.company_name }}</span>
+                      <span>&bull;</span>
+                      <span><i class="bi bi-clock me-1"></i>Applied {{ app.applied_at|date:"M d, Y" }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="d-flex align-items-center gap-3 w-100 w-sm-auto justify-content-between justify-content-sm-end">
+                  {% if app.status == 'INTERVIEW' or app.status == 'interview_scheduled' %}
+                    <span class="badge bg-purple-subtle text-purple border border-purple-subtle px-3 py-2 fw-semibold" style="background-color: #EDE9FE; color: #6D28D9;">
+                      <i class="bi bi-calendar-event me-1"></i>Interview Scheduled
+                    </span>
+                  {% elif app.status == 'ASSESSMENT' or app.status == 'challenge_assigned' %}
+                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-2 fw-semibold">
+                      <i class="bi bi-code-square me-1"></i>Assessment Stage
+                    </span>
+                  {% elif app.status == 'SHORTLISTED' %}
+                    <span class="badge bg-info-subtle text-info border border-info-subtle px-3 py-2 fw-semibold">
+                      <i class="bi bi-patch-check me-1"></i>Shortlisted
+                    </span>
+                  {% elif app.status == 'SELECTED' or app.status == 'offer_extended' %}
+                    <span class="badge bg-success text-white px-3 py-2 fw-semibold">
+                      <i class="bi bi-trophy-fill me-1"></i>Offer Extended
+                    </span>
+                  {% elif app.status == 'REJECTED' %}
+                    <span class="badge bg-danger-subtle text-danger px-3 py-2 fw-semibold">Not Selected</span>
+                  {% else %}
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 fw-semibold">
+                      <i class="bi bi-hourglass-split me-1"></i>Under Review
+                    </span>
+                  {% endif %}
+
+                  <a href="{% url 'applications:detail' app.id %}" class="btn btn-sm btn-outline-primary" title="Track Stage">
+                    <i class="bi bi-graph-up me-1"></i> Track
+                  </a>
+
+                  {% if app.job %}
+                    <a href="{% url 'jobs:detail' app.job.id %}" class="btn btn-sm btn-outline-secondary" title="View Job Description">
+                      <i class="bi bi-box-arrow-up-right"></i>
+                    </a>
+                  {% elif app.internship %}
+                    <a href="{% url 'jobs:internship_detail' app.internship.id %}" class="btn btn-sm btn-outline-secondary" title="View Internship Description">
+                      <i class="bi bi-box-arrow-up-right"></i>
+                    </a>
+                  {% endif %}
                 </div>
               </div>
             {% endfor %}
           </div>
         {% else %}
-          <p class="text-muted small mb-0">No engineering projects added yet. Showcase your GitHub repositories to recruiters!</p>
+          <div class="text-center py-4 px-3 border rounded" style="background-color: var(--cream-soft); border-style: dashed !important;">
+            <i class="bi bi-briefcase text-muted fs-1 d-block mb-2"></i>
+            <h6 class="fw-bold mb-1" style="color: var(--navy);">No Applications Submitted Yet</h6>
+            <p class="text-muted small mb-3">Explore thousands of verified engineering roles and apply with your Novus-matched CV.</p>
+            <a href="{% url 'jobs:list' %}" class="btn btn-sm btn-primary text-white" style="background-color: #2563EB; border: none;">
+              <i class="bi bi-compass me-1"></i> Explore Opportunities
+            </a>
+          </div>
         {% endif %}
       </div>
 
-      <div class="card p-4 shadow-sm border-0" style="border-radius: var(--radius-md);">
-        <h5 class="fw-bold mb-3" style="color: var(--navy);"><i class="bi bi-tools me-2"></i>Technical Competencies</h5>
+      <!-- 2. Recruiter Private Technical Challenges -->
+      <div class="workspace-section-card p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-shield-lock-fill text-success fs-5"></i>
+            <h5 class="fw-bold mb-0" style="color: var(--navy);">Selected Private Challenges</h5>
+            <span class="badge" style="background-color: var(--sage); color: var(--navy);">Recruiter Exclusive</span>
+          </div>
+          <a href="{% url 'challenges:student_my_challenges' %}" class="btn btn-sm btn-outline-success">
+            View All ({{ challenges_count }}) &rarr;
+          </a>
+        </div>
+
+        {% if active_challenges %}
+          <div class="row g-3">
+            {% for ca in active_challenges %}
+              <div class="col-md-6">
+                <div class="p-3 border rounded h-100 d-flex flex-column justify-content-between" style="background-color: var(--cream-soft);">
+                  <div>
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                      <span class="badge bg-primary text-white" style="font-size: 0.72rem;">{{ ca.challenge.difficulty_level|default:"Medium" }}</span>
+                      <span class="badge bg-warning-subtle text-warning border border-warning-subtle" style="font-size: 0.72rem;">
+                        <i class="bi bi-clock me-1"></i>Due {{ ca.deadline|date:"M d" }}
+                      </span>
+                    </div>
+                    <h6 class="fw-bold mb-1 text-truncate" title="{{ ca.challenge.title }}" style="color: var(--navy);">{{ ca.challenge.title }}</h6>
+                    <p class="text-muted small mb-2 line-clamp-2" style="font-size: 0.82rem;">
+                      {{ ca.challenge.description|truncatewords:15 }}
+                    </p>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                    <small class="text-muted"><i class="bi bi-stopwatch me-1"></i>{{ ca.challenge.time_limit_minutes|default:60 }} mins</small>
+                    <a href="{% url 'challenges:student_challenge_detail' ca.id %}" class="btn btn-sm btn-success text-white px-3">
+                      Start Challenge &rarr;
+                    </a>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="p-3 rounded border text-center" style="background-color: var(--cream-soft); border-style: dashed !important;">
+            <p class="text-muted small mb-0">
+              <i class="bi bi-info-circle me-1 text-primary"></i>
+              No pending challenges. Partner recruiters assign private assessments to candidates whose skills match their stack.
+            </p>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- 3. Verified Engineering Projects Portfolio -->
+      <div class="workspace-section-card p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-code-slash text-primary fs-5"></i>
+            <h5 class="fw-bold mb-0" style="color: var(--navy);">Engineering Projects</h5>
+            <span class="badge bg-secondary-subtle text-secondary">{{ projects.count }}</span>
+          </div>
+          <button type="button" class="btn btn-sm btn-primary text-white" data-bs-toggle="modal" data-bs-target="#addProjectModal" style="background-color: #2563EB; border: none;">
+            <i class="bi bi-plus-lg me-1"></i> Add Project
+          </button>
+        </div>
+
+        {% if projects %}
+          <div class="row g-3">
+            {% for p in projects %}
+              <div class="col-md-6">
+                <div class="project-item-card">
+                  <div>
+                    <div class="d-flex justify-content-between align-items-start mb-1">
+                      <h6 class="fw-bold mb-1" style="color: var(--navy);">{{ p.title }}</h6>
+                      <form action="{% url 'students:delete_project' p.id %}" method="POST" onsubmit="return confirm('Remove project \'{{ p.title }}\'?');" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-link text-danger p-0" title="Delete Project">
+                          <i class="bi bi-trash small"></i>
+                        </button>
+                      </form>
+                    </div>
+                    <p class="small text-muted mb-2" style="font-size: 0.85rem; line-height: 1.45;">{{ p.description }}</p>
+                    <div class="mb-2">
+                      <span class="badge bg-secondary-subtle text-secondary font-monospace" style="font-size: 0.72rem;">
+                        <i class="bi bi-cpu me-1"></i>{{ p.technologies }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="d-flex gap-2 pt-2 border-top">
+                    {% if p.repo_url %}
+                      <a href="{{ p.repo_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-dark py-1 px-2" style="font-size: 0.78rem;">
+                        <i class="bi bi-github me-1"></i>Repository
+                      </a>
+                    {% endif %}
+                    {% if p.live_url %}
+                      <a href="{{ p.live_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-primary py-1 px-2" style="font-size: 0.78rem;">
+                        <i class="bi bi-box-arrow-up-right me-1"></i>Live Demo
+                      </a>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="text-center py-4 px-3 border rounded" style="background-color: var(--cream-soft); border-style: dashed !important;">
+            <i class="bi bi-github text-muted fs-1 d-block mb-2"></i>
+            <h6 class="fw-bold mb-1" style="color: var(--navy);">No Projects Added Yet</h6>
+            <p class="text-muted small mb-3">Recruiters are 3x more likely to shortlist candidates with verified GitHub repositories and live deployments.</p>
+            <button type="button" class="btn btn-sm btn-primary text-white" data-bs-toggle="modal" data-bs-target="#addProjectModal" style="background-color: #2563EB; border: none;">
+              <i class="bi bi-plus-circle me-1"></i> Add Your First Project
+            </button>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- 4. Recommended Opportunities Matching Your Profile -->
+      <div class="workspace-section-card p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-lightning-charge-fill text-warning fs-5"></i>
+            <h5 class="fw-bold mb-0" style="color: var(--navy);">Recommended Opportunities</h5>
+          </div>
+          <a href="{% url 'jobs:list' %}" class="small text-primary text-decoration-none fw-semibold">Explore All Roles &rarr;</a>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-3 g-3">
+          {% for job in recommended_jobs %}
+            <div class="col">
+              <div class="opportunity-card h-100 d-flex flex-column justify-content-between">
+                <div>
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle" style="font-size: 0.7rem;">
+                      {{ job.get_workplace_type_display|default:"Hybrid" }}
+                    </span>
+                    <span class="badge bg-success-subtle text-success" style="font-size: 0.7rem;">Active</span>
+                  </div>
+                  <h6 class="fw-bold mb-1 text-truncate" title="{{ job.title }}" style="color: var(--navy);">{{ job.title }}</h6>
+                  <div class="text-muted small mb-2 text-truncate" title="{{ job.company.name }}">{{ job.company.name }}</div>
+                  <div class="text-muted small mb-2" style="font-size: 0.8rem;">
+                    <i class="bi bi-geo-alt me-1"></i>{{ job.location|default:"India" }}
+                  </div>
+                </div>
+                <div class="pt-2 border-top mt-2">
+                  <div class="fw-bold text-success small mb-2">{{ job.salary_range|default:"Competitive" }}</div>
+                  <a href="{% url 'jobs:detail' job.id %}" class="btn btn-sm btn-outline-primary w-100">View Role &rarr;</a>
+                </div>
+              </div>
+            </div>
+          {% empty %}
+            <div class="col-12">
+              <p class="text-muted small mb-0">No active job recommendations currently available.</p>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+    </div>
+
+    <!-- --------------------------------------------------------------------
+         RIGHT SIDEBAR PANEL (col-lg-4): Novus AI, CV Hub, Profile & Skills
+         -------------------------------------------------------------------- -->
+    <div class="col-lg-4">
+
+      <!-- Widget 1: Novus AI Career Companion -->
+      <div class="card p-4 shadow-sm border-0 mb-4 novus-card-glow novus-launcher-card" style="border-radius: var(--radius-md);">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="d-flex align-items-center gap-2">
+            <img src="{% static 'images/novus_bot.png' %}" alt="Novus AI" style="width: 32px; height: 32px; object-fit: contain;">
+            <div>
+              <h6 class="fw-bold mb-0" style="color: var(--navy);">Novus AI Companion</h6>
+              <small class="text-muted" style="font-size: 0.72rem;">Google Gemini 2.5 Engine</small>
+            </div>
+          </div>
+          <span class="badge bg-primary text-white" style="font-size: 0.7rem;">Active</span>
+        </div>
+        <p class="small text-muted mb-3" style="line-height: 1.5;">
+          Your 24/7 technical career strategist. Audits resumes, spots missing skills, and runs role-specific mock interviews.
+        </p>
+
+        <!-- Quick AI Prompt Shortcuts -->
+        <div class="d-flex flex-column gap-2 mb-3">
+          <a href="{% url 'ai_assistant:workspace' %}" class="novus-shortcut-btn text-start d-flex align-items-center justify-content-between px-3 py-2 text-decoration-none" style="font-size: 0.82rem;">
+            <span><i class="bi bi-file-earmark-check text-primary me-2"></i>Audit My Technical Resume</span>
+            <i class="bi bi-arrow-right text-muted"></i>
+          </a>
+          <a href="{% url 'ai_assistant:workspace' %}" class="novus-shortcut-btn text-start d-flex align-items-center justify-content-between px-3 py-2 text-decoration-none" style="font-size: 0.82rem;">
+            <span><i class="bi bi-bullseye text-success me-2"></i>Find High-Affinity Jobs</span>
+            <i class="bi bi-arrow-right text-muted"></i>
+          </a>
+          <a href="{% url 'ai_assistant:workspace' %}" class="novus-shortcut-btn text-start d-flex align-items-center justify-content-between px-3 py-2 text-decoration-none" style="font-size: 0.82rem;">
+            <span><i class="bi bi-chat-quote text-warning me-2"></i>Start Mock Interview Prep</span>
+            <i class="bi bi-arrow-right text-muted"></i>
+          </a>
+        </div>
+
+        <a href="{% url 'ai_assistant:workspace' %}" class="btn btn-primary w-100 py-2 fw-semibold text-white d-flex align-items-center justify-content-center gap-2 shadow-sm" style="background-color: #2563EB; border: none;">
+          <i class="bi bi-chat-dots-fill"></i> Launch Novus Workspace &rarr;
+        </a>
+      </div>
+
+      <!-- Widget 2: Technical Resume / CV Hub -->
+      <div class="workspace-section-card p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold mb-0" style="color: var(--navy);">
+            <i class="bi bi-file-earmark-pdf text-danger me-2"></i>Resume / CV Hub
+          </h5>
+          {% if has_resume %}
+            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1" style="font-size: 0.75rem;">
+              <i class="bi bi-check-circle-fill me-1"></i>Active CV
+            </span>
+          {% else %}
+            <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1" style="font-size: 0.75rem;">
+              <i class="bi bi-exclamation-triangle-fill me-1"></i>Missing CV
+            </span>
+          {% endif %}
+        </div>
+
+        {% if has_resume %}
+          <!-- State B: Active CV on file -->
+          <div class="p-3 border rounded mb-3" style="background-color: var(--cream-soft);">
+            <div class="d-flex align-items-start gap-3">
+              <div class="rounded-3 p-2 d-flex align-items-center justify-content-center" style="background: rgba(220, 38, 38, 0.1); color: #DC2626; width: 44px; height: 44px; flex-shrink: 0;">
+                <i class="bi bi-file-earmark-pdf-fill fs-3"></i>
+              </div>
+              <div class="flex-grow-1 overflow-hidden">
+                <div class="fw-bold text-truncate" title="{{ latest_resume.title }}" style="color: var(--navy); font-size: 0.92rem;">
+                  {{ latest_resume.title }}
+                </div>
+                <div class="text-muted small mb-1" style="font-size: 0.78rem;">
+                  <i class="bi bi-calendar3 me-1"></i>Uploaded {{ latest_resume.uploaded_at|date:"M d, Y · h:i A" }}
+                </div>
+                <span class="badge bg-primary text-white" style="font-size: 0.68rem;">Default Active CV</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions: View Latest CV & Update Resume -->
+          <div class="d-flex flex-column gap-2">
+            <a href="{% url 'students:view_resume' latest_resume.id %}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-primary btn-sm d-flex align-items-center justify-content-center gap-2 py-2">
+              <i class="bi bi-eye-fill"></i> View Latest CV
+            </a>
+            <button type="button" class="btn btn-primary btn-sm d-flex align-items-center justify-content-center gap-2 py-2 text-white" data-bs-toggle="modal" data-bs-target="#uploadResumeModal" style="background-color: #2563EB; border: none;">
+              <i class="bi bi-arrow-repeat"></i> Update Resume
+            </button>
+          </div>
+
+          <!-- Version History (if multiple revisions exist) -->
+          {% if resumes.count > 1 %}
+            <div class="mt-3 pt-3 border-top">
+              <a class="small text-muted text-decoration-none d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#resumeHistoryCollapse" role="button" aria-expanded="false" aria-controls="resumeHistoryCollapse">
+                <span><i class="bi bi-clock-history me-1"></i>Version History ({{ resumes.count }})</span>
+                <i class="bi bi-chevron-down small"></i>
+              </a>
+              <div class="collapse mt-2" id="resumeHistoryCollapse">
+                <ul class="list-unstyled mb-0 small">
+                  {% for r in resumes %}
+                    <li class="py-1 d-flex justify-content-between align-items-center border-bottom border-light">
+                      <span class="text-truncate" style="max-width: 170px;" title="{{ r.title }}">{{ r.title }}</span>
+                      <a href="{% url 'students:view_resume' r.id %}" target="_blank" class="text-primary text-decoration-none fw-semibold">
+                        <i class="bi bi-box-arrow-up-right me-1"></i>View
+                      </a>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </div>
+          {% endif %}
+
+        {% else %}
+          <!-- State A: No CV uploaded -->
+          <div class="text-center py-4 px-2 border rounded mb-3" style="background-color: var(--cream-soft); border-style: dashed !important;">
+            <i class="bi bi-file-earmark-arrow-up text-muted fs-1 d-block mb-2"></i>
+            <h6 class="fw-bold mb-1" style="color: var(--navy);">No CV on File</h6>
+            <p class="text-muted small mb-0 px-2">Upload your technical resume to qualify for matching jobs and assessments.</p>
+          </div>
+
+          <button type="button" class="btn btn-primary btn-sm w-100 py-2 d-flex align-items-center justify-content-center gap-2 text-white" data-bs-toggle="modal" data-bs-target="#uploadResumeModal" style="background-color: #2563EB; border: none;">
+            <i class="bi bi-cloud-arrow-up-fill"></i> Upload CV
+          </button>
+        {% endif %}
+      </div>
+
+      <!-- Widget 3: Academic Profile & Education -->
+      <div class="workspace-section-card p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+          <h5 class="fw-bold mb-0" style="color: var(--navy);">
+            <i class="bi bi-person-badge text-primary me-2"></i>Profile &amp; Academics
+          </h5>
+          <a href="{% url 'students:edit_profile' %}" class="btn btn-sm btn-outline-primary py-1 px-2" style="font-size: 0.8rem;">
+            <i class="bi bi-pencil me-1"></i>Edit
+          </a>
+        </div>
+
+        <div class="d-flex flex-column gap-2 small">
+          <div class="d-flex justify-content-between">
+            <span class="text-muted">Degree / Course:</span>
+            <span class="fw-semibold">{{ profile.degree|default:"Not Provided" }}</span>
+          </div>
+          <div class="d-flex justify-content-between">
+            <span class="text-muted">Branch:</span>
+            <span class="fw-semibold">{{ profile.branch|default:"Not Provided" }}</span>
+          </div>
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="text-muted">College CGPA:</span>
+            {% if profile.cgpa %}
+              <span class="badge bg-primary-subtle text-primary fw-bold">{{ profile.cgpa }} / 10.0</span>
+            {% else %}
+              <span class="text-muted">—</span>
+            {% endif %}
+          </div>
+          <div class="d-flex justify-content-between">
+            <span class="text-muted">College:</span>
+            <span class="fw-semibold text-truncate ms-2" style="max-width: 170px;" title="{{ profile.display_college }}">{{ profile.display_college|default:"Not Provided" }}</span>
+          </div>
+          <div class="d-flex justify-content-between">
+            <span class="text-muted">Graduation:</span>
+            <span class="fw-semibold">{{ profile.graduation_year|default:"Not Provided" }}</span>
+          </div>
+          <div class="d-flex justify-content-between">
+            <span class="text-muted">School:</span>
+            <span class="fw-semibold text-truncate ms-2" style="max-width: 170px;" title="{{ profile.school_name }}">{{ profile.school_name|default:"Not Provided" }}</span>
+          </div>
+          {% if profile.school_marks or profile.tenth_marks or profile.twelfth_marks %}
+          <div class="d-flex justify-content-between">
+            <span class="text-muted">Marks (10th/12th):</span>
+            <span class="fw-semibold">{{ profile.tenth_marks|default:"—" }} &bull; {{ profile.twelfth_marks|default:"—" }}</span>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Social & Code Profiles -->
+        {% if profile.github_url or profile.linkedin_url or profile.portfolio_url %}
+          <div class="d-flex gap-2 mt-3 pt-2 border-top">
+            {% if profile.github_url %}
+              <a href="{{ profile.github_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-dark flex-fill" title="GitHub">
+                <i class="bi bi-github"></i> GitHub
+              </a>
+            {% endif %}
+            {% if profile.linkedin_url %}
+              <a href="{{ profile.linkedin_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-primary flex-fill" title="LinkedIn">
+                <i class="bi bi-linkedin"></i> LinkedIn
+              </a>
+            {% endif %}
+            {% if profile.portfolio_url %}
+              <a href="{{ profile.portfolio_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-secondary flex-fill" title="Portfolio">
+                <i class="bi bi-globe"></i> Web
+              </a>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Widget 4: Technical Competencies & Skills -->
+      <div class="workspace-section-card p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-tools text-primary fs-5"></i>
+            <h5 class="fw-bold mb-0" style="color: var(--navy);">Competencies</h5>
+          </div>
+          <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addSkillModal">
+            <i class="bi bi-plus-lg me-1"></i> Add
+          </button>
+        </div>
+
         {% if skills %}
-          <div>
+          <div class="d-flex flex-wrap">
             {% for s in skills %}
-              <span class="skill-tag px-3 py-1 fs-6">
-                {{ s.skill_name }} ({{ s.get_proficiency_display }})
-                {% if s.is_verified %}<i class="bi bi-patch-check-fill text-success ms-1"></i>{% endif %}
+              <span class="skill-interactive-tag">
+                {{ s.skill_name }}
+                <span class="badge bg-secondary-subtle text-secondary" style="font-size: 0.68rem;">{{ s.get_proficiency_display }}</span>
+                {% if s.is_verified %}<i class="bi bi-patch-check-fill text-success" title="Verified Skill"></i>{% endif %}
+                <form action="{% url 'students:delete_skill' s.id %}" method="POST" class="d-inline ms-1" onsubmit="return confirm('Remove skill \'{{ s.skill_name }}\'?');">
+                  {% csrf_token %}
+                  <button type="submit" class="btn-close" style="width: 0.45rem; height: 0.45rem;" aria-label="Remove"></button>
+                </form>
               </span>
             {% endfor %}
           </div>
         {% else %}
-          <p class="text-muted small mb-0">No competencies logged yet.</p>
+          <div class="text-center py-3 border rounded" style="background-color: var(--cream-soft); border-style: dashed !important;">
+            <p class="text-muted small mb-2">No technical competencies logged yet.</p>
+            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addSkillModal">
+              <i class="bi bi-plus-circle me-1"></i> Add Core Skills
+            </button>
+          </div>
         {% endif %}
       </div>
+
     </div>
   </div>
 </div>
-{% endblock %}
 
+<!-- ======================================================================
+     MODAL 1: RESUME UPLOAD / UPDATE MODAL
+     ====================================================================== -->
+<div class="modal fade" id="uploadResumeModal" tabindex="-1" aria-labelledby="uploadResumeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg" style="border-radius: var(--radius-md);">
+      <div class="modal-header border-bottom">
+        <h5 class="modal-title fw-bold" id="uploadResumeModalLabel" style="color: var(--navy);">
+          {% if has_resume %}
+            <i class="bi bi-arrow-repeat text-primary me-2"></i>Update Your Resume / CV
+          {% else %}
+            <i class="bi bi-cloud-arrow-up-fill text-primary me-2"></i>Upload Your Resume / CV
+          {% endif %}
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="{% url 'students:upload_resume' %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="is_update" value="{% if has_resume %}true{% else %}false{% endif %}">
+        <input type="hidden" name="next" value="{{ request.path }}">
+
+        <div class="modal-body p-4">
+          {% if has_resume %}
+            <div class="alert alert-info py-2 px-3 small mb-3">
+              <i class="bi bi-info-circle-fill me-1"></i>
+              Uploading a new file will set it as your <strong>Default Active CV</strong> while preserving version history.
+            </div>
+          {% else %}
+            <p class="text-muted small mb-3">
+              Upload your engineering resume to boost your profile score (+15%) and enable recruiters to review your qualifications.
+            </p>
+          {% endif %}
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">Resume File <span class="text-danger">*</span></label>
+            <div class="border rounded p-3 text-center" style="border-style: dashed !important; border-color: var(--slate) !important; background-color: var(--cream-soft);">
+              <i class="bi bi-file-earmark-arrow-up text-primary fs-2 d-block mb-1"></i>
+              <input type="file" name="resume_file" id="resumeFileInput" class="form-control form-control-sm mt-2" accept=".pdf,.doc,.docx" required>
+              <div class="form-text small mt-1">Accepted formats: <strong>PDF, DOC, DOCX</strong> (Max: 5MB)</div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">Resume Title / Version Label</label>
+            <input type="text" name="title" class="form-control" placeholder="e.g. Software Engineer CV - 2026" value="{% if has_resume %}Technical Resume - Updated{% else %}Primary Technical Resume{% endif %}">
+          </div>
+        </div>
+        <div class="modal-footer border-top">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary text-white" style="background-color: #2563EB; border: none;">
+            <i class="bi bi-cloud-arrow-up me-1"></i> {% if has_resume %}Save New Version{% else %}Upload &amp; Save{% endif %}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================================
+     MODAL 2: ADD ENGINEERING PROJECT MODAL
+     ====================================================================== -->
+<div class="modal fade" id="addProjectModal" tabindex="-1" aria-labelledby="addProjectModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg" style="border-radius: var(--radius-md);">
+      <div class="modal-header border-bottom">
+        <h5 class="modal-title fw-bold" id="addProjectModalLabel" style="color: var(--navy);">
+          <i class="bi bi-code-square text-primary me-2"></i>Add Engineering Project
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="{% url 'students:add_project' %}" method="POST">
+        {% csrf_token %}
+        <div class="modal-body p-4">
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">Project Title <span class="text-danger">*</span></label>
+            {{ project_form.title }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">Technologies / Tech Stack <span class="text-danger">*</span></label>
+            {{ project_form.technologies }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">Description &amp; Architecture</label>
+            {{ project_form.description }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">GitHub / Repository URL</label>
+            {{ project_form.repo_url }}
+          </div>
+          <div class="mb-2">
+            <label class="form-label fw-semibold small">Live Demo URL (Optional)</label>
+            {{ project_form.live_url }}
+          </div>
+        </div>
+        <div class="modal-footer border-top">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary text-white" style="background-color: #2563EB; border: none;">
+            <i class="bi bi-plus-lg me-1"></i> Add Project
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================================
+     MODAL 3: ADD TECHNICAL COMPETENCY / SKILL MODAL
+     ====================================================================== -->
+<div class="modal fade" id="addSkillModal" tabindex="-1" aria-labelledby="addSkillModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content border-0 shadow-lg" style="border-radius: var(--radius-md);">
+      <div class="modal-header border-bottom">
+        <h5 class="modal-title fw-bold" id="addSkillModalLabel" style="color: var(--navy);">
+          <i class="bi bi-patch-check text-primary me-2"></i>Add Competency
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="{% url 'students:add_skill' %}" method="POST">
+        {% csrf_token %}
+        <div class="modal-body p-4">
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">Skill / Tech Name <span class="text-danger">*</span></label>
+            {{ skill_form.skill_name }}
+          </div>
+          <div class="mb-2">
+            <label class="form-label fw-semibold small">Proficiency Level</label>
+            {{ skill_form.proficiency }}
+          </div>
+        </div>
+        <div class="modal-footer border-top">
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-sm text-white" style="background-color: #2563EB; border: none;">
+            <i class="bi bi-plus-lg me-1"></i> Save Skill
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const skipBtn = document.getElementById('skipResumePromptBtn');
+  const banner = document.getElementById('bigResumePromptBanner');
+
+  if (skipBtn && banner) {
+    skipBtn.addEventListener('click', function() {
+      fetch("{% url 'students:skip_resume_prompt' %}", {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}',
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        banner.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+        banner.style.opacity = '0';
+        banner.style.transform = 'translateY(-10px)';
+        setTimeout(() => banner.remove(), 320);
+      })
+      .catch(err => {
+        banner.remove();
+      });
+    });
+  }
+});
+</script>
+{% endblock %}

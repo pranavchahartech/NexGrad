@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}Post New Internship — {{ company.name }} | Nexgrad{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-9">
+      <!-- Breadcrumb / Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <div class="section-eyebrow">Recruiter Publishing Studio</div>
+          <h3 class="fw-bold mb-1" style="color: var(--navy);">Post New Engineering Internship</h3>
+          <p class="text-muted small mb-0">Publish experiential learning, co-op, or trainee opportunities for engineering students across the platform.</p>
+        </div>
+        <a href="{% url 'recruiters:dashboard' %}" class="btn btn-sm btn-outline-secondary">
+          <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+        </a>
+      </div>
+
+      <div class="card shadow-sm border-0 p-4" style="border-radius: var(--radius-md);">
+        <form method="post">
+          {% csrf_token %}
+
+          <!-- Sponsoring Company Meta -->
+          <div class="p-3 rounded mb-4 d-flex align-items-center justify-content-between" style="background-color: var(--cream-soft); border: 1px solid var(--border-subtle);">
+            <div>
+              <span class="text-muted small d-block">Sponsoring Organization</span>
+              <strong style="color: var(--navy); font-size: 1.05rem;">{{ company.name }}</strong>
+            </div>
+            <div>
+              <span class="badge bg-success-subtle text-success border border-success-subtle">
+                <i class="bi bi-shield-check me-1"></i>Verified Hiring Partner
+              </span>
+            </div>
+          </div>
+
+          <div class="row g-3">
+            <!-- Internship Title -->
+            <div class="col-12">
+              <label for="title" class="form-label fw-semibold">Internship Title <span class="text-danger">*</span></label>
+              <input type="text" name="title" id="title" class="form-control" placeholder="e.g. Generative AI & Systems Research Intern" required>
+            </div>
+
+            <!-- Duration & Stipend -->
+            <div class="col-md-6">
+              <label for="duration" class="form-label fw-semibold">Program Duration</label>
+              <input type="text" name="duration" id="duration" class="form-control" value="6 Months" placeholder="e.g. 6 Months, 3 Months, Summer 2027">
+            </div>
+            <div class="col-md-6">
+              <label for="stipend" class="form-label fw-semibold">Monthly Stipend</label>
+              <input type="text" name="stipend" id="stipend" class="form-control" value="₹50,000 / Month" placeholder="e.g. ₹45,000 / Month">
+            </div>
+
+            <!-- Location & Work Mode -->
+            <div class="col-md-6">
+              <label for="location" class="form-label fw-semibold">Location &amp; Workplace Mode</label>
+              <input type="text" name="location" id="location" class="form-control" value="Bengaluru, India (Hybrid)" placeholder="e.g. Bengaluru, India (Hybrid) or Remote">
+            </div>
+
+            <!-- Eligible Branches -->
+            <div class="col-md-6">
+              <label for="eligible_branches" class="form-label fw-semibold">Eligible Engineering Disciplines</label>
+              <input type="text" name="eligible_branches" id="eligible_branches" class="form-control" value="CSE, ECE, IT, AI & DS" placeholder="Comma-separated branches">
+            </div>
+
+            <!-- Deadline -->
+            <div class="col-md-6">
+              <label for="deadline" class="form-label fw-semibold">Application Deadline (Optional)</label>
+              <input type="date" name="deadline" id="deadline" class="form-control">
+            </div>
+
+            <!-- Description -->
+            <div class="col-12">
+              <label for="description" class="form-label fw-semibold">Internship Description &amp; Responsibilities <span class="text-danger">*</span></label>
+              <textarea name="description" id="description" rows="6" class="form-control" placeholder="Detail the hands-on engineering challenges, tech stack, mentor support, and what the student will build..." required></textarea>
+            </div>
+
+            <!-- Required Skills Taxonomy -->
+            <div class="col-12">
+              <label class="form-label fw-semibold">Required Technical Stack / Competencies</label>
+              <div class="p-3 border rounded" style="max-height: 200px; overflow-y: auto;">
+                <div class="row g-2">
+                  {% for s in skills %}
+                    <div class="col-sm-6 col-md-4">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="skills" value="{{ s.id }}" id="skill_{{ s.id }}">
+                        <label class="form-check-label small" for="skill_{{ s.id }}">
+                          {{ s.name }}
+                        </label>
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center pt-4 mt-4 border-top">
+            <a href="{% url 'recruiters:dashboard' %}" class="btn btn-nex-outline">Cancel</a>
+            <button type="submit" class="btn btn-nex-primary px-4">
+              <i class="bi bi-cloud-arrow-up-fill me-1"></i> Publish Internship Now
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

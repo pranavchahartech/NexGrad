@@ -102,6 +102,42 @@ def internship_list(request):
         'active_page': 'internships',
     })
 
+def internship_detail(request, internship_id):
+    """
+    Detailed internship view with tech stack, branch eligibility, stipend, and explainable match engine.
+    """
+    internship = get_object_or_404(
+        Internship.objects.select_related('company', 'recruiter').prefetch_related('required_skills'),
+        id=internship_id
+    )
+    similar_internships = Internship.objects.filter(
+        company=internship.company, is_active=True
+    ).exclude(id=internship.id)[:3]
+
+    has_applied = False
+    application = None
+    if request.user.is_authenticated and hasattr(request.user, 'student_profile'):
+        from applications.models import Application
+        application = Application.objects.filter(
+            student=request.user.student_profile,
+            internship=internship
+        ).first()
+        has_applied = application is not None
+
+    match_data = None
+    if request.user.is_authenticated and hasattr(request.user, 'student_profile'):
+        from career_intelligence.services import calculate_opportunity_match
+        match_data = calculate_opportunity_match(request.user.student_profile, internship)
+
+    return render(request, 'jobs/internship_detail.html', {
+        'internship': internship,
+        'similar_internships': similar_internships,
+        'has_applied': has_applied,
+        'application': application,
+        'match_data': match_data,
+        'active_page': 'internships',
+    })
+
 def api_opportunities(request):
     """
     REST API endpoint delivering structured database-backed opportunity records.

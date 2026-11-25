@@ -9,6 +9,7 @@ urlpatterns = [
     path('<int:job_id>/', views.job_detail, name='detail'),
     path('category/<slug:category_slug>/', views.category_list, name='category_list'),
     path('internships/', views.internship_list, name='internship_list'),
+    path('internships/<int:internship_id>/', views.internship_detail, name='internship_detail'),
 
     # JSON API Endpoint
     path('api/opportunities/', views.api_opportunities, name='api_opportunities'),

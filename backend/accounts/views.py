@@ -44,8 +44,12 @@ def register_student(request):
         form = StudentRegistrationForm(request.POST)
         if form.is_valid():
             user = form.save()
+            from students.models import StudentProfile
+            StudentProfile.objects.get_or_create(user=user)
             login(request, user)
-            messages.success(request, "Your student account has been created successfully!")
+            request.session['is_new_user'] = True
+            request.session['just_registered'] = True
+            messages.success(request, f"Welcome to Nexgrad, {user.first_name or user.username}! Your student account has been created.")
             return redirect('students:dashboard')
         else:
             messages.error(request, "Please correct the errors below to register.")

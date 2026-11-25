@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
+from django.db.models import Q
 from django.core.exceptions import PermissionDenied
 
 from .models import Company, CompanyBoard, RecruiterProfile, CompanyVerification, DataImportLog
@@ -65,12 +66,18 @@ def _render_recruiter_dashboard(request, profile, company_context=None):
         external_jobs_count = jobs.filter(is_external_import=True).count()
         manual_jobs_count = jobs.filter(is_external_import=False).count()
 
-        applications = Application.objects.filter(job__in=jobs).select_related(
-            'student', 'student__user', 'student__institution', 'job'
-        ).order_by('-applied_at')[:10]
+        applications_qs = Application.objects.filter(
+            Q(job__in=jobs) | Q(internship__in=internships)
+        ).select_related(
+            'student', 'student__user', 'student__institution', 'job', 'internship', 'resume'
+        ).order_by('-applied_at')
         
-        applications_count = Application.objects.filter(job__in=jobs).count()
-        interviews_count = Interview.objects.filter(application__job__in=jobs, is_completed=False).count()
+        applications = applications_qs[:30]
+        applications_count = applications_qs.count()
+        interviews_count = Interview.objects.filter(
+            Q(application__job__in=jobs) | Q(application__internship__in=internships),
+            is_completed=False
+        ).count()
         challenges = Challenge.objects.filter(recruiter=profile).select_related('job')
         challenges_count = challenges.count()
         
@@ -361,3 +368,135 @@ def admin_decide_claim(request, claim_id, decision):
             messages.error(request, f"Unknown decision '{decision}'.")
 
     return redirect('recruiters:admin_discovery')
+
+
+@login_required
+def post_internship(request):
+    """
+    Allows a verified recruiter to publish an engineering internship opportunity.
+    Immediately reflects on the global internship explore board and student workspace.
+    """
+    profile = getattr(request.user, 'recruiter_profile', None)
+    if not profile or not profile.company:
+        messages.error(request, "Only registered recruiters associated with an official company can publish internships.")
+        return redirect('recruiters:dashboard')
+
+    if request.method == 'POST':
+        title = request.POST.get('title', '').strip()
+        duration = request.POST.get('duration', '6 Months').strip()
+        stipend = request.POST.get('stipend', '₹50,000 / Month').strip()
+        location = request.POST.get('location', 'Hybrid / Remote').strip()
+        eligible_branches = request.POST.get('eligible_branches', 'CSE, ECE, IT').strip()
+        description = request.POST.get('description', '').strip()
+        deadline_str = request.POST.get('deadline', '').strip()
+        skill_ids = request.POST.getlist('skills')
+
+        if not title or not description:
+            messages.error(request, "Please provide an internship title and detailed role description.")
+            return redirect('recruiters:post_internship')
+
+        deadline = None
+        if deadline_str:
+            try:
+                deadline = timezone.datetime.strptime(deadline_str, '%Y-%m-%d').date()
+            except ValueError:
+                deadline = None
+
+        internship = Internship.objects.create(
+            company=profile.company,
+            recruiter=profile,
+            title=title,
+            duration=duration,
+            stipend=stipend,
+            location=location,
+            eligible_branches=eligible_branches,
+            description=description,
+            deadline=deadline,
+            is_active=True
+        )
+
+        if skill_ids:
+            internship.required_skills.set(skill_ids)
+
+        messages.success(request, f"Internship '{internship.title}' has been successfully published!")
+        return redirect('recruiters:dashboard')
+
+    from jobs.models import Skill
+    skills = Skill.objects.all()
+    return render(request, 'recruiters/post_internship.html', {
+        'profile': profile,
+        'company': profile.company,
+        'skills': skills,
+    })
+
+
+@login_required
+def post_job(request):
+    """
+    Allows a verified recruiter to publish a full-time engineering vacancy.
+    """
+    profile = getattr(request.user, 'recruiter_profile', None)
+    if not profile or not profile.company:
+        messages.error(request, "Only registered recruiters associated with an official company can publish jobs.")
+        return redirect('recruiters:dashboard')
+
+    if request.method == 'POST':
+        title = request.POST.get('title', '').strip()
+        job_type = request.POST.get('job_type', 'FULL_TIME')
+        workplace_type = request.POST.get('workplace_type', 'HYBRID')
+        location = request.POST.get('location', 'Bengaluru, India').strip()
+        salary_range = request.POST.get('salary_range', '₹10,00,000 - ₹18,00,000 P.A.').strip()
+        eligible_branches = request.POST.get('eligible_branches', 'CSE, ECE, IT').strip()
+        min_cgpa = request.POST.get('min_cgpa', '7.00')
+        description = request.POST.get('description', '').strip()
+        responsibilities = request.POST.get('responsibilities', '').strip()
+        requirements = request.POST.get('requirements', '').strip()
+        deadline_str = request.POST.get('deadline', '').strip()
+        skill_ids = request.POST.getlist('skills')
+
+        if not title or not description:
+            messages.error(request, "Please provide a job title and description.")
+            return redirect('recruiters:post_job')
+
+        try:
+            min_cgpa_dec = float(min_cgpa)
+        except ValueError:
+            min_cgpa_dec = 7.00
+
+        deadline = None
+        if deadline_str:
+            try:
+                deadline = timezone.datetime.strptime(deadline_str, '%Y-%m-%d').date()
+            except ValueError:
+                deadline = None
+
+        job = Job.objects.create(
+            company=profile.company,
+            recruiter=profile,
+            title=title,
+            job_type=job_type,
+            workplace_type=workplace_type,
+            location=location,
+            salary_range=salary_range,
+            eligible_branches=eligible_branches,
+            min_cgpa=min_cgpa_dec,
+            description=description,
+            responsibilities=responsibilities,
+            requirements=requirements,
+            deadline=deadline,
+            is_active=True
+        )
+
+        if skill_ids:
+            job.required_skills.set(skill_ids)
+
+        messages.success(request, f"Engineering job vacancy '{job.title}' has been successfully published!")
+        return redirect('recruiters:dashboard')
+
+    from jobs.models import Skill
+    skills = Skill.objects.all()
+    return render(request, 'recruiters/post_job.html', {
+        'profile': profile,
+        'company': profile.company,
+        'skills': skills,
+    })

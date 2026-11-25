@@ -24,8 +24,26 @@
   <!-- Bootstrap Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
+  <!-- Anti-FOUC Theme Script (instantly applies dark or light theme before render) -->
+  <script>
+    (function () {
+      try {
+        const savedTheme = localStorage.getItem('nexgrad_theme');
+        const systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = savedTheme ? savedTheme : (systemPrefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-bs-theme', theme);
+        document.documentElement.setAttribute('data-theme', theme);
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      } catch (e) {}
+    })();
+  </script>
+
   <!-- Nexgrad Design System -->
-  <link rel="stylesheet" href="{% static 'css/base.css' %}?v=2.2">
+  <link rel="stylesheet" href="{% static 'css/base.css' %}?v=2.3">
   {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -75,17 +93,35 @@
               <span class="badge rounded-pill bg-primary" style="font-size: 0.65rem;">Gemini</span>
             </a>
           </li>
+          {% elif user.is_authenticated and user.is_recruiter %}
+          <li class="nav-item">
+            <a class="nav-link nex-nav-link d-flex align-items-center gap-1 {% if active_page == 'recruiter_dashboard' %}active{% endif %}" href="{% url 'recruiters:dashboard' %}" style="color: var(--navy); font-weight: 700;">
+              <i class="bi bi-speedometer2 text-primary"></i>
+              <span>Recruiter Workspace</span>
+            </a>
+          </li>
           {% endif %}
         </ul>
 
         <!-- Right Side Auth Actions -->
         <div class="d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center gap-2 pt-3 pt-lg-0 border-top border-lg-0 mt-3 mt-lg-0">
+          <!-- Dark / Light Mode Toggle Button -->
+          <button id="themeToggleBtn" type="button" class="btn nex-theme-toggle order-lg-last" aria-label="Toggle dark and light mode" title="Toggle Dark / Light Mode">
+            <i class="bi bi-moon-stars-fill theme-icon-dark" aria-hidden="true"></i>
+            <i class="bi bi-sun-fill theme-icon-light" aria-hidden="true"></i>
+            <span class="d-lg-none ms-2 theme-toggle-text">Dark Mode</span>
+          </button>
+
           {% if user.is_authenticated %}
             <div class="dropdown nex-user-dropdown">
               <button class="btn nex-user-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <span class="user-avatar-circle">
-                  {{ user.username|slice:":1"|upper }}
-                </span>
+                {% if user.student_profile and user.student_profile.profile_picture %}
+                  <img src="{{ user.student_profile.profile_picture.url }}" alt="{{ user.username }}" class="rounded-circle" style="width: 26px; height: 26px; object-fit: cover;">
+                {% else %}
+                  <span class="user-avatar-circle">
+                    {{ user.username|slice:":1"|upper }}
+                  </span>
+                {% endif %}
                 <span>{{ user.first_name|default:user.username }}</span>
               </button>
               <ul class="dropdown-menu dropdown-menu-end nex-dropdown-menu">
@@ -99,6 +135,7 @@
                 {% if user.is_student %}
                   <li><a class="nex-dropdown-item d-flex align-items-center gap-2" href="{% url 'ai_assistant:workspace' %}"><img src="{% static 'images/novus_bot.png' %}" alt="Novus" style="width: 18px; height: 18px; object-fit: contain;"><strong>Novus AI Career Companion</strong></a></li>
                   <li><a class="nex-dropdown-item" href="{% url 'students:dashboard' %}"><i class="bi bi-grid-fill text-primary"></i>Student Workspace</a></li>
+                  <li><a class="nex-dropdown-item" href="{% url 'students:edit_profile' %}"><i class="bi bi-person-gear text-primary"></i>Edit Profile</a></li>
                   <li><a class="nex-dropdown-item" href="{% url 'challenges:student_my_challenges' %}"><i class="bi bi-shield-lock-fill text-primary"></i>My Selected Challenges</a></li>
                   <li><a class="nex-dropdown-item" href="{% url 'applications:my_applications' %}"><i class="bi bi-card-checklist text-primary"></i>My Applications</a></li>
                 {% elif user.is_recruiter %}
@@ -131,6 +168,15 @@
       </div>
     </div>
   </nav>
+
+  <!-- Global Resume Reminder Ribbon (When browsing pages outside Student Workspace without a CV) -->
+  {% if show_global_resume_prompt and request.resolver_match.url_name != 'dashboard' %}
+  <div id="globalResumeBanner" class="py-2 px-3 text-center border-bottom d-flex align-items-center justify-content-center gap-2 flex-wrap" style="background-color: var(--cream); color: var(--navy); font-size: 0.88rem;">
+    <span><i class="bi bi-file-earmark-arrow-up-fill text-primary me-1"></i><strong>Action Recommended:</strong> You haven't uploaded your resume yet.</span>
+    <a href="{% url 'students:dashboard' %}" class="btn btn-sm btn-primary py-0 px-2 fw-semibold" style="font-size: 0.8rem; background-color: #2563EB;">Upload Resume Now</a>
+    <a href="{% url 'students:skip_resume_prompt' %}?next={{ request.path }}" class="text-muted text-decoration-none small ms-2" title="Dismiss for this session">&times; Dismiss</a>
+  </div>
+  {% endif %}
 
   <!-- Platform Feedback Messages -->
   {% if messages %}
@@ -961,6 +1007,94 @@
       }
     });
   });
+  </script>
+
+  <!-- NexGrad Global Theme Manager (Dark / Light Mode) -->
+  <script>
+  (function () {
+    const STORAGE_KEY = 'nexgrad_theme';
+
+    function getActiveTheme() {
+      return document.documentElement.getAttribute('data-bs-theme') || 'light';
+    }
+
+    function updateToggleUI(theme) {
+      const btn = document.getElementById('themeToggleBtn');
+      if (!btn) return;
+      const labelSpan = btn.querySelector('.theme-toggle-text');
+      const isDark = (theme === 'dark');
+      if (labelSpan) {
+        labelSpan.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+      }
+      btn.setAttribute('title', isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode');
+      btn.setAttribute('aria-label', isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode');
+    }
+
+    function applyTheme(theme, save = true) {
+      // Add temporary transition class for silky smooth visual switch
+      document.documentElement.classList.add('theme-transition');
+
+      document.documentElement.setAttribute('data-bs-theme', theme);
+      document.documentElement.setAttribute('data-theme', theme);
+
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+
+      if (save) {
+        try {
+          localStorage.setItem(STORAGE_KEY, theme);
+        } catch (e) {}
+      }
+
+      const metaTheme = document.querySelector('meta[name="theme-color"]');
+      if (metaTheme) {
+        metaTheme.setAttribute('content', theme === 'dark' ? '#0B1120' : '#082B4C');
+      }
+
+      updateToggleUI(theme);
+
+      // Clean up transition class after transition finishes
+      setTimeout(function () {
+        document.documentElement.classList.remove('theme-transition');
+      }, 300);
+
+      window.dispatchEvent(new CustomEvent('nexgrad-theme-changed', { detail: { theme } }));
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      const current = getActiveTheme();
+      updateToggleUI(current);
+
+      const toggleBtn = document.getElementById('themeToggleBtn');
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', function (e) {
+          e.preventDefault();
+          const currentTheme = getActiveTheme();
+          const targetTheme = (currentTheme === 'dark') ? 'light' : 'dark';
+          applyTheme(targetTheme, true);
+        });
+      }
+
+      // Synchronize across open browser tabs
+      window.addEventListener('storage', function (e) {
+        if (e.key === STORAGE_KEY && (e.newValue === 'dark' || e.newValue === 'light')) {
+          applyTheme(e.newValue, false);
+        }
+      });
+
+      // System preference changes (only if user hasn't explicitly set a preference)
+      if (window.matchMedia) {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
+          if (!localStorage.getItem(STORAGE_KEY)) {
+            applyTheme(e.matches ? 'dark' : 'light', false);
+          }
+        });
+      }
+    });
+  })();
   </script>
 
   <!-- Bootstrap 5 Bundle JS -->

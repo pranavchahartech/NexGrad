@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ internship.title }} (Internship) at {{ internship.company.name }} — Nexgrad{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <!-- Back Link -->
+  <div class="mb-3">
+    <a href="{% url 'jobs:internship_list' %}" class="btn btn-sm btn-nex-outline">
+      <i class="bi bi-arrow-left me-1"></i> Back to Internships
+    </a>
+  </div>
+
+  <div class="row g-4">
+    <!-- Left Column: Internship Details & Match Analysis -->
+    <div class="col-lg-8">
+      <div class="card shadow-sm border-0 p-4 mb-4" style="border-radius: var(--radius-md);">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <div>
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+              <span class="badge" style="background-color: var(--navy); color: #fff;">
+                <i class="bi bi-mortarboard-fill me-1"></i>Engineering Internship
+              </span>
+              <span class="badge" style="background-color: var(--sage); color: var(--navy);">
+                <i class="bi bi-clock me-1"></i>{{ internship.duration }}
+              </span>
+              <span class="badge" style="background-color: var(--slate-light); color: var(--navy);">
+                <i class="bi bi-cash-stack me-1"></i>{{ internship.stipend }}
+              </span>
+              <span class="badge bg-success-subtle text-success border border-success-subtle">
+                <i class="bi bi-check-circle-fill me-1"></i>Verified Hiring Partner
+              </span>
+            </div>
+
+            <h2 class="fw-bold mt-2 mb-1" style="color: var(--navy);">{{ internship.clean_title }}</h2>
+            <div class="text-muted">
+              <i class="bi bi-building me-1"></i><strong>{{ internship.company.name }}</strong> &bull;
+              <i class="bi bi-geo-alt ms-2 me-1 text-danger"></i>{{ internship.location }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Specifications Breakdown Table -->
+        <div class="card shadow-sm border-0 mb-4" style="border-radius: var(--radius-sm); border: 1px solid var(--border-subtle) !important;">
+          <div class="card-header bg-white py-2 px-3 border-bottom d-flex justify-content-between align-items-center">
+            <span class="fw-bold small text-uppercase" style="color: var(--navy); letter-spacing: 0.05em;">
+              <i class="bi bi-table me-2 text-primary"></i>Internship Specifications &amp; Attributes
+            </span>
+            <span class="badge" style="background-color: var(--navy); color: #fff;">Experiential Trainee</span>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 38%; color: var(--navy);">Parameter</th>
+                  <th style="color: var(--navy);">Offering Details</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="text-muted fw-semibold"><i class="bi bi-person-workspace me-2 text-primary"></i>Role Designation</td>
+                  <td class="fw-bold" style="color: var(--navy);">{{ internship.clean_title }}</td>
+                </tr>
+                <tr>
+                  <td class="text-muted fw-semibold"><i class="bi bi-building me-2 text-primary"></i>Company / Organization</td>
+                  <td><strong>{{ internship.company.name }}</strong> &bull; <small class="text-muted">{{ internship.company.industry }}</small></td>
+                </tr>
+                <tr>
+                  <td class="text-muted fw-semibold"><i class="bi bi-hourglass-split me-2 text-info"></i>Program Duration</td>
+                  <td><span class="badge" style="background-color: var(--sage); color: var(--navy); font-size: 0.85rem;">{{ internship.duration }}</span></td>
+                </tr>
+                <tr>
+                  <td class="text-muted fw-semibold"><i class="bi bi-cash-coin me-2 text-success"></i>Monthly Stipend</td>
+                  <td class="fw-bold text-success fs-6">{{ internship.stipend }}</td>
+                </tr>
+                <tr>
+                  <td class="text-muted fw-semibold"><i class="bi bi-geo-alt me-2 text-danger"></i>Location / Mode</td>
+                  <td>{{ internship.location }}</td>
+                </tr>
+                <tr>
+                  <td class="text-muted fw-semibold"><i class="bi bi-mortarboard me-2 text-warning"></i>Eligible Disciplines</td>
+                  <td><strong>{{ internship.eligible_branches }}</strong></td>
+                </tr>
+                {% if internship.recruiter %}
+                <tr>
+                  <td class="text-muted fw-semibold"><i class="bi bi-person-badge me-2 text-secondary"></i>Recruitment Lead</td>
+                  <td>{{ internship.recruiter.user.get_full_name|default:internship.recruiter.user.username }} &bull; <small class="text-muted">{{ internship.recruiter.designation }}</small></td>
+                </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Explainable Compatibility Match Analysis Card (Novus Engine) -->
+        {% if match_data %}
+          <div class="card p-3 mb-4 border-0" style="background-color: #F0F6F9; border-left: 4px solid var(--slate) !important; border-radius: var(--radius-sm);">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-cpu-fill fs-5" style="color: var(--slate);"></i>
+                <h6 class="fw-bold mb-0" style="color: var(--navy);">Your Internship Compatibility Affinity</h6>
+              </div>
+              <span class="badge fs-6" style="background-color: var(--navy); color: #fff;">{{ match_data.score }}% Match</span>
+            </div>
+
+            <div class="progress mb-3" style="height: 8px;">
+              <div class="progress-bar" role="progressbar" style="width: {{ match_data.score }}%; background-color: var(--slate);"></div>
+            </div>
+
+            {% if match_data.matched_skills %}
+              <div class="small mb-2">
+                <strong class="text-success"><i class="bi bi-check-circle me-1"></i>Demonstrated Skills:</strong>
+                {% for s in match_data.matched_skills %}
+                  <span class="badge bg-success-subtle text-success border border-success-subtle me-1">{{ s }}</span>
+                {% endfor %}
+              </div>
+            {% endif %}
+
+            {% if match_data.missing_skills %}
+              <div class="small mb-2">
+                <strong class="text-danger"><i class="bi bi-exclamation-circle me-1"></i>Recommended Learning Focus:</strong>
+                {% for s in match_data.missing_skills %}
+                  <span class="badge bg-danger-subtle text-danger border border-danger-subtle me-1">{{ s }}</span>
+                {% endfor %}
+              </div>
+            {% endif %}
+
+            <div class="small text-muted mt-2 border-top pt-2">
+              <strong>Match Evidence Breakdown:</strong>
+              <ul class="mb-0 ps-3">
+                {% for r in match_data.reasons %}
+                  <li>{{ r }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+        {% endif %}
+
+        <!-- Detailed Description -->
+        <h5 class="fw-bold mt-4 mb-2" style="color: var(--navy);">Internship Description &amp; Learning Objectives</h5>
+        <p class="text-muted" style="white-space: pre-line; line-height: 1.65;">{{ internship.description }}</p>
+
+        <!-- Technical Stack / Skills -->
+        <h5 class="fw-bold mt-4 mb-2" style="color: var(--navy);">Required Technical Stack &amp; Competencies</h5>
+        <div class="mb-4 d-flex flex-wrap gap-2">
+          {% for skill in internship.required_skills.all %}
+            <span class="skill-tag fs-6 px-3 py-1">{{ skill.name }}</span>
+          {% empty %}
+            <span class="text-muted small">General engineering competencies.</span>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Application Action Card -->
+    <div class="col-lg-4">
+      <div class="card shadow-sm border-0 p-4 sticky-top" style="top: 100px; border-radius: var(--radius-md);">
+        <h5 class="fw-bold mb-3" style="color: var(--navy);">Internship Application</h5>
+        <p class="small text-muted mb-4">
+          Submitting your internship application routes your candidate profile and technical CV directly to <strong>{{ internship.company.name }}</strong>'s dedicated hiring pipeline.
+        </p>
+
+        {% if has_applied %}
+          <div class="alert alert-success d-flex align-items-center gap-2 mb-3">
+            <i class="bi bi-check-circle-fill fs-4 text-success"></i>
+            <div>
+              <strong>Application Active</strong>
+              <div class="small">You applied on {{ application.applied_at|date:"M d, Y" }}. Current stage: <strong>{{ application.get_status_display }}</strong></div>
+            </div>
+          </div>
+          <a href="{% url 'applications:detail' application.id %}" class="btn btn-outline-primary w-100 py-2 d-flex align-items-center justify-content-center gap-2 mb-3">
+            <i class="bi bi-clock-history"></i> Track Application Journey
+          </a>
+        {% elif user.is_authenticated and user.is_student %}
+          <a href="{% url 'applications:apply_to_internship' internship.id %}" class="btn btn-nex-primary w-100 py-3 justify-content-center mb-3 shadow-sm fs-6">
+            <i class="bi bi-send-fill me-2"></i> Apply for this Internship
+          </a>
+        {% elif user.is_authenticated %}
+          <div class="alert alert-warning small">
+            You are signed in as a <strong>{{ user.get_role_display }}</strong>. Internship applications are reserved for registered student engineers.
+          </div>
+        {% else %}
+          <a href="{% url 'accounts:login' %}?next={% url 'applications:apply_to_internship' internship.id %}" class="btn btn-nex-primary w-100 py-2 justify-content-center mb-2">
+            Sign In to Apply
+          </a>
+          <a href="{% url 'accounts:register_student' %}" class="btn btn-nex-outline w-100 py-2 text-center">
+            Register as Student
+          </a>
+        {% endif %}
+
+        <div class="pt-3 mt-3 border-top small text-muted">
+          <div><i class="bi bi-calendar-event me-2"></i>Posted: {{ internship.created_at|date:"M d, Y" }}</div>
+          {% if internship.deadline %}
+            <div class="mt-1"><i class="bi bi-clock-history me-2 text-warning"></i>Application Deadline: <strong>{{ internship.deadline|date:"M d, Y" }}</strong></div>
+          {% endif %}
+          <div class="mt-1"><i class="bi bi-shield-check me-2 text-success"></i>Official Recruiter: {{ internship.company.name }}</div>
+        </div>
+
+        {% if similar_internships %}
+          <div class="pt-4 mt-3 border-top">
+            <h6 class="fw-bold mb-3" style="color: var(--navy);">Other Roles at {{ internship.company.name }}</h6>
+            <div class="d-flex flex-column gap-2">
+              {% for sim in similar_internships %}
+                <a href="{% url 'jobs:internship_detail' sim.id %}" class="p-2 border rounded text-decoration-none d-flex justify-content-between align-items-center hover-shadow">
+                  <div>
+                    <div class="fw-semibold text-truncate small" style="color: var(--navy); max-width: 200px;">{{ sim.title }}</div>
+                    <small class="text-muted">{{ sim.stipend }} &bull; {{ sim.duration }}</small>
+                  </div>
+                  <i class="bi bi-chevron-right text-muted small"></i>
+                </a>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

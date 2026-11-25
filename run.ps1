@@ -7,6 +7,7 @@ param(
 $CandidatePaths = @(
     "$PSScriptRoot\..\myenv\Scripts\python.exe",
     "$PSScriptRoot\myenv\Scripts\python.exe",
+    "C:\Users\SANJAY\AppData\Local\Programs\Python\Python313\python.exe",
     "C:\Users\HP\AppData\Local\Programs\Python\Python314\python.exe"
 )
 

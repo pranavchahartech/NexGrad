@@ -109,8 +109,25 @@ WSGI_APPLICATION = 'nexgrad.wsgi.application'
 ASGI_APPLICATION = 'nexgrad.asgi.application'
 
 # Database Configuration
-# Uses PostgreSQL on EC2-2 when DB credentials are provided, falls back to SQLite for local development
-if os.environ.get('DB_NAME') and os.environ.get('DB_USER'):
+# Supports MySQL (XAMPP / phpMyAdmin), PostgreSQL (EC2 production), or SQLite fallback
+DB_ENGINE_CONFIG = os.environ.get('DB_ENGINE', 'mysql').lower()
+
+if DB_ENGINE_CONFIG in ('mysql', 'mariadb'):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.environ.get('DB_NAME', 'nexgrad'),
+            'USER': os.environ.get('DB_USER', 'root'),
+            'PASSWORD': os.environ.get('DB_PASSWORD', ''),
+            'HOST': os.environ.get('DB_HOST', '127.0.0.1'),
+            'PORT': os.environ.get('DB_PORT', '3306'),
+            'OPTIONS': {
+                'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+                'charset': 'utf8mb4',
+            }
+        }
+    }
+elif DB_ENGINE_CONFIG in ('postgres', 'postgresql'):
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',

@@ -32,13 +32,45 @@ def calculate_opportunity_match(student_profile, job):
         matched_skills = set()
 
     # 2. Academic Cutoff (25%)
-    eligibility_score = 100 if student_profile.cgpa >= job.min_cgpa else 50
-    if student_profile.cgpa >= job.min_cgpa:
-        reasons.append(f"CGPA ({student_profile.cgpa}) satisfies the minimum threshold ({job.min_cgpa})")
+    has_student_cgpa = student_profile.cgpa is not None
+    job_min_cgpa = getattr(job, 'min_cgpa', None)
+    has_min_cgpa = job_min_cgpa is not None and job_min_cgpa > 0
+
+    if not has_min_cgpa:
+        eligibility_score = 100
+        reasons.append("No minimum CGPA requirement for this position")
+    elif has_student_cgpa:
+        if student_profile.cgpa >= job_min_cgpa:
+            eligibility_score = 100
+            reasons.append(f"CGPA ({student_profile.cgpa}) satisfies the minimum threshold ({job_min_cgpa})")
+        else:
+            eligibility_score = 40
+            missing_skills.append(f"CGPA ({student_profile.cgpa}) is below the required threshold ({job_min_cgpa})")
+    else:
+        eligibility_score = 50
+        reasons.append(f"Minimum CGPA of {job_min_cgpa} required (profile CGPA not yet specified)")
 
     # 3. Branch Alignment (15%)
-    eligible_branches = [b.strip().upper() for b in job.eligible_branches.split(',')]
-    branch_score = 100 if student_profile.branch in eligible_branches else 60
+    if job.eligible_branches:
+        eligible_branches = [b.strip().upper() for b in job.eligible_branches.split(',') if b.strip()]
+    else:
+        eligible_branches = []
+
+    student_branch = (student_profile.branch or '').strip().upper()
+    if not eligible_branches:
+        branch_score = 100
+        reasons.append("All engineering disciplines are eligible")
+    elif student_branch and student_branch in eligible_branches:
+        branch_score = 100
+        branch_display = student_profile.get_branch_display() if hasattr(student_profile, 'get_branch_display') else student_profile.branch
+        reasons.append(f"Branch ({branch_display}) matches eligible departments")
+    else:
+        branch_score = 60
+        if not student_branch:
+            reasons.append("Academic branch not yet specified in profile")
+        else:
+            branch_display = student_profile.get_branch_display() if hasattr(student_profile, 'get_branch_display') else student_profile.branch
+            reasons.append(f"Eligible departments: {', '.join(eligible_branches)} (current: {branch_display})")
 
     # 4. Project Evidence (10%)
     project_count = student_profile.projects.count()

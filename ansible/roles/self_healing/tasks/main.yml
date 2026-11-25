@@ -1,9 +1,0 @@
----
-- name: Deploy Self-Healing Recovery Scripts
-  ansible.builtin.copy:
-    src: ../../nagios/event-handlers/
-    dest: /usr/local/bin/self-healing/
-    mode: "0755"
-    owner: root
-    group: root
-

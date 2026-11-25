@@ -1,0 +1,274 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Profile — Nexgrad{% endblock %}
+
+{% block content %}
+<div class="container py-4 py-md-5" style="max-width: 960px;">
+
+  <!-- Breadcrumb & Back Action -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    <div>
+      <div class="d-flex align-items-center gap-2 mb-1">
+        <a href="{% url 'students:dashboard' %}" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1">
+          <i class="bi bi-arrow-left"></i> Workspace
+        </a>
+        <span class="text-muted">/</span>
+        <span class="fw-semibold text-primary">Edit Profile</span>
+      </div>
+      <h2 class="fw-bold mb-1" style="color: var(--navy);">Student Profile &amp; Academic Credentials</h2>
+      <p class="text-muted small mb-0">
+        Update your personal details, college course, school marks, and contact information. Accurate data improves recruiter matching.
+      </p>
+    </div>
+
+    <div class="mt-3 mt-md-0">
+      <span class="badge" style="background-color: var(--sage); color: var(--navy); font-size: 0.9rem; font-weight: 700;">
+        Profile Score: {{ profile.completion_percentage }}%
+      </span>
+    </div>
+  </div>
+
+  <form method="POST" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+
+    {% if form.errors %}
+      <div class="alert alert-danger shadow-sm mb-4">
+        <h6 class="fw-bold mb-2"><i class="bi bi-exclamation-triangle-fill me-2"></i>Please resolve the following errors:</h6>
+        <ul class="mb-0 small ps-3">
+          {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+              <li><strong>{{ field|title }}:</strong> {{ error }}</li>
+            {% endfor %}
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+
+    <!-- ======================================================================
+         SECTION 1: PHOTO & BASIC IDENTITY
+         ====================================================================== -->
+    <div class="card p-4 shadow-sm border-0 mb-4" style="border-radius: var(--radius-md);">
+      <h5 class="fw-bold mb-3 pb-2 border-bottom" style="color: var(--navy);">
+        <i class="bi bi-person-circle me-2 text-primary"></i>Profile Photo &amp; Personal Info
+      </h5>
+
+      <div class="row g-4 align-items-center mb-3">
+        <!-- Photo Preview & Upload -->
+        <div class="col-md-auto text-center">
+          <div class="position-relative d-inline-block">
+            {% if profile.profile_picture %}
+              <img id="avatarPreview" src="{{ profile.profile_picture.url }}" alt="Profile Photo" class="rounded-circle shadow-sm border" style="width: 100px; height: 100px; object-fit: cover; border-color: var(--slate) !important;">
+            {% else %}
+              <div id="avatarFallback" class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm" style="width: 100px; height: 100px; font-size: 2.2rem; background: var(--navy);">
+                {{ user.username|slice:":1"|upper }}
+              </div>
+              <img id="avatarPreview" src="" alt="Profile Photo" class="rounded-circle shadow-sm border d-none" style="width: 100px; height: 100px; object-fit: cover;">
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="col-md">
+          <label for="id_profile_picture" class="form-label fw-semibold small mb-1">Upload Profile Photo</label>
+          {{ form.profile_picture }}
+          <div class="form-text small">Accepted formats: JPG, PNG, WEBP &bull; Recommended: Square headshot (Max 5MB)</div>
+        </div>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label for="id_first_name" class="form-label fw-semibold small">First Name <span class="text-danger">*</span></label>
+          {{ form.first_name }}
+        </div>
+        <div class="col-md-6">
+          <label for="id_last_name" class="form-label fw-semibold small">Last Name</label>
+          {{ form.last_name }}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-semibold small">Account Email</label>
+          <input type="email" class="form-control" value="{{ user.email }}" disabled style="background-color: var(--cream-soft); opacity: 0.85;">
+          <div class="form-text small">Email is linked to your registered NexGrad account.</div>
+        </div>
+        <div class="col-md-6">
+          <label for="id_phone" class="form-label fw-semibold small">Phone / Mobile Number</label>
+          {{ form.phone }}
+          <div class="form-text small">Primary contact for recruiter interviews and notifications.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================================
+         SECTION 2: RESIDENTIAL & CAMPUS ADDRESS
+         ====================================================================== -->
+    <div class="card p-4 shadow-sm border-0 mb-4" style="border-radius: var(--radius-md);">
+      <h5 class="fw-bold mb-3 pb-2 border-bottom" style="color: var(--navy);">
+        <i class="bi bi-geo-alt-fill me-2 text-primary"></i>Address &amp; Location
+      </h5>
+
+      <div class="row g-3">
+        <div class="col-md-8">
+          <label for="id_address" class="form-label fw-semibold small">Street / Residential / Campus Address</label>
+          {{ form.address }}
+        </div>
+        <div class="col-md-4">
+          <label for="id_location" class="form-label fw-semibold small">City, State / Region</label>
+          {{ form.location }}
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================================
+         SECTION 3: HIGHER EDUCATION (COLLEGE & COURSE)
+         ====================================================================== -->
+    <div class="card p-4 shadow-sm border-0 mb-4" style="border-radius: var(--radius-md);">
+      <h5 class="fw-bold mb-3 pb-2 border-bottom" style="color: var(--navy);">
+        <i class="bi bi-mortarboard-fill me-2 text-primary"></i>College &amp; Higher Education
+      </h5>
+
+      <div class="row g-3">
+        <div class="col-md-7">
+          <label for="id_college_name" class="form-label fw-semibold small">College / University Name <span class="text-danger">*</span></label>
+          {{ form.college_name }}
+          <div class="form-text small">Enter your college or university (e.g. Lovely Professional University).</div>
+        </div>
+        <div class="col-md-5">
+          <label for="id_institution" class="form-label fw-semibold small">Affiliated Partner Campus (Optional)</label>
+          {{ form.institution }}
+          <div class="form-text small">Select if your college placement cell is a partner institution.</div>
+        </div>
+
+        <div class="col-md-6">
+          <label for="id_degree" class="form-label fw-semibold small">Course / Degree <span class="text-danger">*</span></label>
+          {{ form.degree }}
+          <div class="form-text small">e.g. B.Tech, BCA, MCA, B.Sc, M.Tech, BE, B.Com</div>
+        </div>
+        <div class="col-md-6">
+          <label for="id_branch" class="form-label fw-semibold small">Branch / Specialization</label>
+          {{ form.branch }}
+          <div class="form-text small">e.g. Computer Science, AI &amp; Machine Learning, Electronics, Mechanical</div>
+        </div>
+
+        <div class="col-md-6">
+          <label for="id_cgpa" class="form-label fw-semibold small">College CGPA / Percentage</label>
+          <div class="input-group">
+            {{ form.cgpa }}
+            <span class="input-group-text">/ 10.0</span>
+          </div>
+          <div class="form-text small">Your current cumulative grade point average (e.g. 8.75).</div>
+        </div>
+        <div class="col-md-6">
+          <label for="id_graduation_year" class="form-label fw-semibold small">Graduation / Passing Year</label>
+          {{ form.graduation_year }}
+          <div class="form-text small">Year of completing your course (e.g. 2026).</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================================
+         SECTION 4: SCHOOL EDUCATION (10TH & 12TH)
+         ====================================================================== -->
+    <div class="card p-4 shadow-sm border-0 mb-4" style="border-radius: var(--radius-md);">
+      <h5 class="fw-bold mb-3 pb-2 border-bottom" style="color: var(--navy);">
+        <i class="bi bi-building me-2 text-primary"></i>School Education &amp; Board Marks
+      </h5>
+
+      <div class="row g-3">
+        <div class="col-md-7">
+          <label for="id_school_name" class="form-label fw-semibold small">School / High School Name</label>
+          {{ form.school_name }}
+          <div class="form-text small">Name of your school (e.g. Delhi Public School, St. Xavier's High School).</div>
+        </div>
+        <div class="col-md-5">
+          <label for="id_school_marks" class="form-label fw-semibold small">Overall School Percentage / Score</label>
+          {{ form.school_marks }}
+          <div class="form-text small">e.g. 92% or 9.4 CGPA</div>
+        </div>
+
+        <div class="col-md-6">
+          <label for="id_tenth_marks" class="form-label fw-semibold small">10th Board Marks / Percentage</label>
+          {{ form.tenth_marks }}
+          <div class="form-text small">e.g. 94.2% / 10 CGPA (CBSE / ICSE / State Board)</div>
+        </div>
+        <div class="col-md-6">
+          <label for="id_twelfth_marks" class="form-label fw-semibold small">12th / Intermediate / Diploma Marks</label>
+          {{ form.twelfth_marks }}
+          <div class="form-text small">e.g. 91.5% (PCM / Science)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================================
+         SECTION 5: PROFESSIONAL BIO & SOCIAL LINKS
+         ====================================================================== -->
+    <div class="card p-4 shadow-sm border-0 mb-4" style="border-radius: var(--radius-md);">
+      <h5 class="fw-bold mb-3 pb-2 border-bottom" style="color: var(--navy);">
+        <i class="bi bi-link-45deg me-2 text-primary"></i>Bio &amp; Portfolio Links
+      </h5>
+
+      <div class="row g-3 mb-3">
+        <div class="col-12">
+          <label for="id_headline" class="form-label fw-semibold small">Professional Headline</label>
+          {{ form.headline }}
+          <div class="form-text small">Short one-line headline (e.g. Aspiring Full-Stack Developer | Passionate about Python &amp; Cloud).</div>
+        </div>
+        <div class="col-12">
+          <label for="id_bio" class="form-label fw-semibold small">About Me / Career Bio</label>
+          {{ form.bio }}
+        </div>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label for="id_github_url" class="form-label fw-semibold small"><i class="bi bi-github me-1"></i>GitHub Profile URL</label>
+          {{ form.github_url }}
+        </div>
+        <div class="col-md-4">
+          <label for="id_linkedin_url" class="form-label fw-semibold small"><i class="bi bi-linkedin me-1 text-primary"></i>LinkedIn Profile URL</label>
+          {{ form.linkedin_url }}
+        </div>
+        <div class="col-md-4">
+          <label for="id_portfolio_url" class="form-label fw-semibold small"><i class="bi bi-globe me-1 text-success"></i>Personal Portfolio URL</label>
+          {{ form.portfolio_url }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions Row -->
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 pt-2">
+      <a href="{% url 'students:dashboard' %}" class="btn btn-outline-secondary px-4 py-2">
+        <i class="bi bi-x-circle me-1"></i> Cancel
+      </a>
+      <button type="submit" class="btn btn-primary px-5 py-2 fw-semibold shadow-sm" style="background-color: #2563EB; border-color: #2563EB;">
+        <i class="bi bi-check-circle-fill me-2"></i> Save Profile Details
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- Client-side Avatar Preview Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const photoInput = document.getElementById('id_profile_picture');
+  const avatarPreview = document.getElementById('avatarPreview');
+  const avatarFallback = document.getElementById('avatarFallback');
+
+  if (photoInput && avatarPreview) {
+    photoInput.addEventListener('change', function () {
+      if (photoInput.files && photoInput.files[0]) {
+        const file = photoInput.files[0];
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          avatarPreview.src = e.target.result;
+          avatarPreview.classList.remove('d-none');
+          if (avatarFallback) {
+            avatarFallback.classList.add('d-none');
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+});
+</script>
+{% endblock %}
+
